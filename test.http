@@ -1,0 +1,35 @@
+// create
+POST http://localhost:3000/user
+Content-Type: application/json
+
+{
+  "userId": "admin2",
+  "userName": "관리자",
+  "password": "admin",
+  "role": "admin"
+}
+
+#####
+// findAll
+GET http://localhost:3000/user/
+
+
+
+#####
+// findOne
+GET http://localhost:3000/user/admin
+
+
+#####
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "userId": "admin2",
+  "password": "admin"
+}
+
+
+#####
+GET http://localhost:3000/auth/profile
+Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhZG1pbjIiLCJ1c2VyTmFtZSI6Iuq0gOumrOyekCIsInNlcSI6Miwicm9sZSI6ImFkbWluIiwiaWF0IjoxNjQ3MjI0NTQ5LCJleHAiOjE2NDcyMjUxNDl9.8XitaCSEzNZKSth3EcqnPw0oNb-bpEavYtxmjt7JS3Y'

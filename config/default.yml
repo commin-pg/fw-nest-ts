@@ -1,0 +1,15 @@
+server: 
+  port: 3001
+  
+db:
+  type: 'mysql'
+  port: 3316
+  database: 'auth_db'
+  host: '127.0.0.1'
+  username: 'root'
+  password: 'khm0813'
+  synchronize: true
+
+jwt:
+  expiresIn: 3600
+  secret: 'Secret1234'
