@@ -2,20 +2,22 @@
 
 
 // create
-POST {{endpoint}}user
+POST {{endpoint}}api/user
 Content-Type: application/json
 
 {
-  "userId": "admin2",
-  "userName": "관리자",
-  "password": "admin",
-  "role": "admin"
+  "userId": "khm0813",
+  "userName": "사용자",
+  "password": "1234",
+  "role": "normal"
 }
 
 #####
 // findAll
-GET {{endpoint}}api/user/
-Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhZG1pbiIsInVzZXJOYW1lIjoia2htIiwic2VxIjoxLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE2NDcyMzM1MzAsImV4cCI6MTY0NzIzNDEzMH0.OlAH4MmSDachIG8kcxgbd0fYUmP_QLza-Pf5wFovFJM'
+curl --request GET\
+  --url {{endpoint}}api/user/
+  -H 'accept: */*' \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJraG0wODEzIiwidXNlck5hbWUiOiLsgqzsmqnsnpAiLCJzZXEiOjQsInJvbGUiOiJub3JtYWwiLCJpYXQiOjE2NDcyMzg5NzEsImV4cCI6MTY0NzI0MjU3MX0.sdkTymIMYNaDPRL4-wkV_8gN60g3W_PAomV2f3Yo8w4'
 
 
 #####
@@ -28,8 +30,8 @@ POST {{endpoint}}api/auth/login
 Content-Type: application/json
 
 {
-  "userId": "admin",
-  "password": "admin"
+  "userId": "khm0813",
+  "password": "1234"
 }
 
 
@@ -38,4 +40,6 @@ Content-Type: application/json
 curl --request GET\
   --url {{endpoint}}api/auth/profile
   -H 'accept: */*' \
-  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhZG1pbiIsInVzZXJOYW1lIjoia2htIiwic2VxIjoxLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE2NDcyMzQ0ODAsImV4cCI6MTY0NzIzNTA4MH0.YLwNGhq-M9bBzWNfa_o-CmHR7aUjdyHj_pmTkaSK4dw'
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJraG0wODEzIiwidXNlck5hbWUiOiLsgqzsmqnsnpAiLCJzZXEiOjQsInJvbGUiOiJub3JtYWwiLCJpYXQiOjE2NDcyNDE5MjEsImV4cCI6MTY0NzI0MTk4MX0.jo72I1G1EVFIGQryIvxoF1styhSeA55JyKRu3xSJ8CQ'
+
+

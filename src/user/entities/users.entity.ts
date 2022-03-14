@@ -1,3 +1,4 @@
+import { Exclude } from "class-transformer";
 import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
@@ -8,7 +9,7 @@ export class User {
   @Column()
   userName: string;
 
-  @PrimaryColumn()
+  @PrimaryColumn({unique: true})
   userId: string;
 
   @Column()
@@ -16,5 +17,9 @@ export class User {
 
   @Column()
   role: string;
+
+  @Column({ nullable: true })
+  @Exclude()
+  currentHashedRefreshToken?: string;
 
 }

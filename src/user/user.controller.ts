@@ -29,16 +29,16 @@ export class UserController {
 
   @Get()
   @ApiBearerAuth("accessToken")
-  @Role("admin")
+  @Role(["admin", "normal"])
   @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   findAll(): Promise<User[]> {
     return this.userService.findAll();
   }
 
-  @Get(":id")
-  findOne(@Res() res: Response, @Param("id") id: string): any {
-    return this.userService.findOne(id).then((result) => {
+  @Get(":userId")
+  findOne(@Res() res: Response, @Param("userId") userId: string): any {
+    return this.userService.findOneByUserId(userId).then((result) => {
       res.status(HttpStatus.OK).json({ data: result });
     });
   }
