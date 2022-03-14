@@ -1,3 +1,5 @@
 export const bcryptConstant = {
-    saltOrRounds: 10,
-  };
+  saltOrRounds: 10,
+};
+
+

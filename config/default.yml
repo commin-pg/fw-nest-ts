@@ -11,7 +11,7 @@ db:
   synchronize: true
 
 jwt:
-  expiresIn: 60
+  expiresIn: 3600
   secret: 'Secret1234'
   refresh_secret: 'Secret1234!'
   refresh_expiresIn: 604800

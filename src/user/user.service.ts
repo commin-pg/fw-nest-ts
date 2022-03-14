@@ -4,6 +4,7 @@ import { Repository } from "typeorm";
 import { User } from "./entities/users.entity";
 import * as bcrypt from "bcrypt";
 import { bcryptConstant } from "src/constants/constants";
+import { ERROR_CODE } from "src/constants/message.constants";
 
 @Injectable()
 export class UserService {
@@ -18,9 +19,7 @@ export class UserService {
     });
     if (isExist) {
       throw new ForbiddenException({
-        statusCode: HttpStatus.FORBIDDEN,
-        message: [`이미 등록된 사용자입니다.`],
-        error: "Forbidden",
+        statusCode: ERROR_CODE.JOIN_FAIL.CODE
       });
     }
 
@@ -48,5 +47,12 @@ export class UserService {
         select: ["seq", "userId", "userName", "role"],
       }
     );
+  }
+
+
+  public async updateRefreshBySeq(seq: number,refresh:string):Promise<User|undefined>{
+    const userNew = await this.userRepository.findOne({seq:seq});
+    userNew.currentHashedRefreshToken = refresh
+    return await this.userRepository.save(userNew);
   }
 }

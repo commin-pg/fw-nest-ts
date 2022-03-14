@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Req,
+  Res,
   UseGuards,
 } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
@@ -33,4 +34,7 @@ export class AuthController {
     logger.log('profile req : ',req)
     return req.user;
   }
+
+
+
 }

@@ -17,12 +17,22 @@ export function setupSwagger(app: INestApplication): void {
         scheme: "bearer",
         bearerFormat: "JWT",
         name:'JWT',
-        description:'Enter JWT Token',
+        description:'Enter JWT Access Token',
         in:'header',
       },
       "accessToken"
     )
-    
+    .addBearerAuth(
+      {
+        type: "http",
+        scheme: "bearer",
+        bearerFormat: "JWT",
+        name:'JWT',
+        description:'Enter JWT Refresh Token',
+        in:'header',
+      },
+      "refreshToken"
+    )
     
     .build();
 

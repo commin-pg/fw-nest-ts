@@ -18,7 +18,7 @@ const jwtConfig = config.get("jwt");
     TypeOrmModule.forFeature([User]),
   ],
   controllers: [UserController],
-  providers: [UserService],
+  providers: [UserService,AuthService],
   exports: [UserService],
 })
 export class UserModule {}
