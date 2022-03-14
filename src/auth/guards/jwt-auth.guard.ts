@@ -4,7 +4,7 @@ import {
   HttpStatus,
   Injectable,
 } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
+import { JwtModule, JwtService } from "@nestjs/jwt";
 import { AuthGuard } from "@nestjs/passport";
 import * as config from "config";
 
@@ -13,7 +13,7 @@ const jwtConfig = config.get("jwt");
 @Injectable()
 export class JwtAuthGuard extends AuthGuard("jwt") {
 
-    
+
   constructor(private jwtService: JwtService) {
     super();
   }
@@ -39,8 +39,8 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
     const secretKey = jwtConfig.secret;
 
     try {
-      console.log(this.jwtService);
       const verify = this.jwtService.verify(token, { secret: secretKey });
+      console.log(this.jwtService, verify);
       return verify;
     } catch (e) {
       console.log(e);
