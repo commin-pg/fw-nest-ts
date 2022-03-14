@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Req,
   Res,
   UseGuards,
 } from "@nestjs/common";
@@ -15,7 +16,7 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { User } from "./entities/users.entity";
 import { UserService } from "./user.service";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
-import { Response } from "express";
+import { Request, Response } from "express";
 
 @ApiTags("유저 API")
 @Controller("api/user")
@@ -27,12 +28,15 @@ export class UserController {
     return this.userService.create(createUserDto);
   }
 
-  @Get()
-  @ApiBearerAuth("accessToken")
-  @Role(["admin", "normal"])
-  @UseGuards(RolesGuard)
+  // @ApiBearerAuth("accessToken")
+  // @Role(["admin", "normal"])
+  // @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
-  findAll(): Promise<User[]> {
+  @Get()
+  public async findAll(
+    // @Req() req: Request,
+    // @Res() res: Response
+  ): Promise<User[]> {
     return this.userService.findAll();
   }
 
