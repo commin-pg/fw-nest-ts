@@ -1,5 +1,8 @@
+@endpoint=http://localhost:3002/
+
+
 // create
-POST http://localhost:3000/user
+POST {{endpoint}}user
 Content-Type: application/json
 
 {
@@ -11,25 +14,28 @@ Content-Type: application/json
 
 #####
 // findAll
-GET http://localhost:3000/user/
-
+GET {{endpoint}}api/user/
+Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhZG1pbiIsInVzZXJOYW1lIjoia2htIiwic2VxIjoxLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE2NDcyMzM1MzAsImV4cCI6MTY0NzIzNDEzMH0.OlAH4MmSDachIG8kcxgbd0fYUmP_QLza-Pf5wFovFJM'
 
 
 #####
 // findOne
-GET http://localhost:3000/user/admin
+GET {{endpoint}}api/user/admin
 
 
 #####
-POST http://localhost:3000/auth/login
+POST {{endpoint}}api/auth/login
 Content-Type: application/json
 
 {
-  "userId": "admin2",
+  "userId": "admin",
   "password": "admin"
 }
 
 
 #####
-GET http://localhost:3000/auth/profile
-Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhZG1pbjIiLCJ1c2VyTmFtZSI6Iuq0gOumrOyekCIsInNlcSI6Miwicm9sZSI6ImFkbWluIiwiaWF0IjoxNjQ3MjI0NTQ5LCJleHAiOjE2NDcyMjUxNDl9.8XitaCSEzNZKSth3EcqnPw0oNb-bpEavYtxmjt7JS3Y'
+//GET {{endpoint}}api/auth/profile
+curl --request GET\
+  --url {{endpoint}}api/auth/profile
+  -H 'accept: */*' \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhZG1pbiIsInVzZXJOYW1lIjoia2htIiwic2VxIjoxLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE2NDcyMzQ0ODAsImV4cCI6MTY0NzIzNTA4MH0.YLwNGhq-M9bBzWNfa_o-CmHR7aUjdyHj_pmTkaSK4dw'
