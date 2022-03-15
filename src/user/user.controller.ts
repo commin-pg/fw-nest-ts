@@ -21,6 +21,7 @@ import { Request, Response } from "express";
 import { AuthService } from "src/auth/auth.service";
 import { ERROR_CODE, SUCCESS_CODE } from "src/constants/message.constants";
 import { LoginUserDto } from "src/auth/dto/login-user.dto";
+import { CustomResponse } from "src/common/response";
 
 const logger = new Logger();
 @ApiTags("유저 API")
@@ -37,21 +38,9 @@ export class UserController {
       .create(createUserDto)
       .then((result) => {
         if (result) {
-          res.status(HttpStatus.OK).json({
-            success: true,
-            resultCode: SUCCESS_CODE.JOIN_SUCCESS.RESULT_CODE,
-            code: SUCCESS_CODE.JOIN_SUCCESS.CODE,
-            msg: SUCCESS_CODE.JOIN_SUCCESS.MSG,
-            data: result,
-          });
+          new CustomResponse<any>(res).OK(result)
         } else {
-
-          res.status(HttpStatus.OK).json({
-            success: false,
-            resultCode: ERROR_CODE.JOIN_FAIL.RESULT_CODE,
-            code: ERROR_CODE.JOIN_FAIL.CODE,
-            msg: ERROR_CODE.JOIN_FAIL.MSG,
-          });
+          new CustomResponse<any>(res)._OK()
         }
       })
       .catch((e) => {
@@ -77,13 +66,7 @@ export class UserController {
     this.authService
       .refreshAccessToken(authorization, dto.userId)
       .then((result) => {
-        res.status(HttpStatus.OK).json({
-          success: true,
-          resultCode: SUCCESS_CODE.AUTH_SUCCESS.RESULT_CODE,
-          code: SUCCESS_CODE.AUTH_SUCCESS.CODE,
-          msg: SUCCESS_CODE.AUTH_SUCCESS.MSG,
-          data: result,
-        });
+        new CustomResponse<any>(res).OK(result)
       })
       .catch((e) => {
         logger.error(e);
@@ -107,12 +90,7 @@ export class UserController {
     this.authService
       .validateAccessToken(authorization, req.user["userId"])
       .then((result) => {
-        res.status(HttpStatus.OK).json({
-          resultCode: SUCCESS_CODE.AUTH_SUCCESS.RESULT_CODE,
-          code: SUCCESS_CODE.AUTH_SUCCESS.CODE,
-          msg: SUCCESS_CODE.AUTH_SUCCESS.MSG,
-          data: result,
-        });
+        new CustomResponse<any>(res).OK(result)
       })
       .catch((e) => {
         logger.error(e);
@@ -129,10 +107,12 @@ export class UserController {
   // @UseGuards(RolesGuard)
   @UseGuards(JwtAuthGuard)
   @Get()
-  public async findAll(): // @Req() req: Request,
+  public async findAll(@Res() res: Response): // @Req() req: Request,
   // @Res() res: Response
-  Promise<User[]> {
-    return this.userService.findAll();
+  Promise<any> {
+    return this.userService.findAll().then((result) => {
+      new CustomResponse<any>(res).OK(result);
+    });
   }
 
   @Get(":userId")
@@ -143,7 +123,7 @@ export class UserController {
     @Param("userId") userId: string
   ): Promise<any> {
     return this.userService.findOneByUserId(userId).then((result) => {
-      res.status(HttpStatus.OK).json({ data: result });
+      new CustomResponse<any>(res).OK(result);
     });
   }
 }

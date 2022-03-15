@@ -9,6 +9,11 @@ export const SUCCESS_CODE = {
       RESULT_CODE:'RESULT_2003',
       CODE:2003,
       MSG:"회원가입 성공"
+  },
+  REQUEST_SUCCESS:{
+    RESULT_CODE:'RESULT_2004',
+    CODE:2004,
+    MSG:"요청 성공"
   }
 };
 
