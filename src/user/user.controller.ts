@@ -32,67 +32,63 @@ export class UserController {
   ) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto, @Res() res:Response) {
+  create(@Body() createUserDto: CreateUserDto, @Res() res: Response) {
     this.userService
       .create(createUserDto)
       .then((result) => {
-        if(result){
-          res.status(HttpStatus.OK).json(
-            {
-              resultCode: SUCCESS_CODE.JOIN_SUCCESS.RESULT_CODE,
-              code: SUCCESS_CODE.JOIN_SUCCESS.CODE,
-              msg: SUCCESS_CODE.JOIN_SUCCESS.MSG,
-              data:result
-            }
-          )
-        }else{
-          res.status(HttpStatus.OK).json(
-            {
-              resultCode: ERROR_CODE.JOIN_FAIL.RESULT_CODE,
-              code: ERROR_CODE.JOIN_FAIL.CODE,
-              msg: ERROR_CODE.JOIN_FAIL.MSG,
-            }
-          )
-        }
-      })
-      .catch((e) => 
-      {
-        res.status(HttpStatus.OK).json(
-          {
+        if (result) {
+          res.status(HttpStatus.OK).json({
+            success: true,
+            resultCode: SUCCESS_CODE.JOIN_SUCCESS.RESULT_CODE,
+            code: SUCCESS_CODE.JOIN_SUCCESS.CODE,
+            msg: SUCCESS_CODE.JOIN_SUCCESS.MSG,
+            data: result,
+          });
+        } else {
+
+          res.status(HttpStatus.OK).json({
+            success: false,
             resultCode: ERROR_CODE.JOIN_FAIL.RESULT_CODE,
             code: ERROR_CODE.JOIN_FAIL.CODE,
-            msg: ERROR_CODE.AUTH_FAIL.MSG,
-          }
-        )
-        
+            msg: ERROR_CODE.JOIN_FAIL.MSG,
+          });
+        }
+      })
+      .catch((e) => {
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          resultCode: ERROR_CODE.JOIN_FAIL.RESULT_CODE,
+          code: ERROR_CODE.JOIN_FAIL.CODE,
+          msg: ERROR_CODE.JOIN_FAIL.MSG,
+        });
       });
   }
 
-  @Post('/auth/refresh')
   @ApiBearerAuth("refreshToken")
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
+  @Post("/auth/refresh")
   public async authRefresh(
     @Req() req: Request,
     @Body() dto: LoginUserDto,
-    @Res() res: Response,
+    @Res() res: Response
   ) {
     const { authorization } = req.headers;
 
     this.authService
       .refreshAccessToken(authorization, dto.userId)
       .then((result) => {
-        res
-          .status(HttpStatus.OK)
-          .json({
-            resultCode: SUCCESS_CODE.AUTH_SUCCESS.RESULT_CODE,
-            code: SUCCESS_CODE.AUTH_SUCCESS.CODE,
-            msg: SUCCESS_CODE.AUTH_SUCCESS.MSG,
-            data: result,
-          });
+        res.status(HttpStatus.OK).json({
+          success: true,
+          resultCode: SUCCESS_CODE.AUTH_SUCCESS.RESULT_CODE,
+          code: SUCCESS_CODE.AUTH_SUCCESS.CODE,
+          msg: SUCCESS_CODE.AUTH_SUCCESS.MSG,
+          data: result,
+        });
       })
       .catch((e) => {
         logger.error(e);
-        res.status(HttpStatus.OK).json({
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+          success: false,
           resultCode: ERROR_CODE.AUTH_FAIL.RESULT_CODE,
           code: ERROR_CODE.AUTH_FAIL.CODE,
           msg: ERROR_CODE.AUTH_FAIL.MSG,

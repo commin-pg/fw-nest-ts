@@ -95,15 +95,14 @@ export class AuthService {
 
   async refreshAccessToken(authorization: string, userId: string) {
     const secretKey = jwtConfig.refresh_secret;
-    console.log("refreshAccessToken", authorization);
     const refreshToken = authorization.replace("Bearer ", "");
-    console.log("refreshAccessToken", secretKey);
-
+    console.log(refreshToken)
     const verify = this.jwtService.verify(refreshToken, { secret: secretKey });
 
     // refreshToken 만료 안된경우 accessToken 새로 발급
     if (verify) {
       const user = await this.userService.findOneByUserId(userId);
+      console.log("user",user)
 
       // db에 저장된 토큰과 비교
       if (user.currentHashedRefreshToken == refreshToken) {

@@ -32,6 +32,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     if (!user) {
       logger.log("local guard no user : ", user);
       throw new UnauthorizedException({
+        success: false,
         statusCode: HttpStatus.NON_AUTHORITATIVE_INFORMATION,
         message: [`사용자 정보가 일치하지 않습니다.`],
         error: "Unauthorized",

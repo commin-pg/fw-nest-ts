@@ -44,7 +44,7 @@ export class UserService {
     return this.userRepository.findOne(
       { userId: userId },
       {
-        select: ["seq", "userId", "userName", "role"],
+        select: ["seq", "userId", "userName", "role","currentHashedRefreshToken"],
       }
     );
   }
