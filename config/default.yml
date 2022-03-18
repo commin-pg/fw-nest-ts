@@ -14,4 +14,4 @@ jwt:
   expiresIn: 3600
   secret: 'Secret1234'
   refresh_secret: 'Secret1234!'
-  refresh_expiresIn: 360
+  refresh_expiresIn: 360000
