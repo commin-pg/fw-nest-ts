@@ -5,8 +5,8 @@ const dbConfig ={
   port: 5432,
   database: 'exam_db',
   host: '127.0.0.1',
-  username: 'sa',
-  password: 'khm0813',
+  username: 'postgres',
+  password: 'postgres',
   synchronize: true
 }
 export const typeORMConfig: TypeOrmModuleOptions = {

@@ -41,6 +41,8 @@ export class AuthService {
     const { userId, password } = userData;
     const query = this.userRepository.createQueryBuilder('user');
 
+    console.log(userData)
+
     const user = await query
       .select([
         'user.id as id',
@@ -48,6 +50,7 @@ export class AuthService {
         'user.userId as userId',
         'user.password as password',
       ])
+      .where('user.userId = :userId',{userId})
       .getRawOne();
     console.log('login query result = ', user);
 
@@ -56,10 +59,9 @@ export class AuthService {
     // });
 
     const ss = await bcrypt.compare(password, user.password);
-    console.log(ss);
-    if (user) {
+    if (ss) {
       // 유저 토큰 생성
-      const payload = { _id: user.id, userId: userId };
+      const payload = { id: user.id, userId: userId };
       const accessToken = await this.jwtService.sign(payload);
       const refPayload = { userId: userId };
       const refreshToken = await this.jwtService.sign(refPayload);

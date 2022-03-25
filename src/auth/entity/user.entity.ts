@@ -1,5 +1,6 @@
 import { Exclude } from "class-transformer";
 import { Board } from "src/boards/entity/board.entity";
+import { Todo } from "src/todos/entitiy/todo.entity";
 import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn, Unique } from "typeorm";
 
 @Entity()
@@ -25,4 +26,8 @@ export class User extends BaseEntity{
     @OneToMany(type=>Board , board=> board.createBy, {eager:false})
     boards:Board[]
     
+
+
+    @OneToMany(type=>Todo, todo=> todo.user, {eager:false})
+    todos:Todo[]
 }
