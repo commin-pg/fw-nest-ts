@@ -1,0 +1,50 @@
+@endpoint=http://127.0.0.1:3000
+
+###
+
+// create
+POST {{endpoint}}/boards/
+Content-Type: application/json
+
+{
+  "title": "asdasd222",
+  "description": "asdasd"
+}
+
+
+###
+
+// Get
+GET {{endpoint}}/boards/
+Content-Type: application/json
+
+###
+
+// Get
+GET {{endpoint}}/boards/2
+Content-Type: application/json
+
+###
+
+PUT {{endpoint}}/boards/update
+Content-Type: application/json
+
+{
+  "id":1,
+  "title": "asdasd111",
+  "description": "asdasd",
+  "status":"PUBLIC"
+}
+
+
+###
+
+POST {{endpoint}}/auth/login
+Content-Type: application/json
+
+{
+  "userId":"admin",
+  "username":"khm",
+  "password":"1234",
+
+}
