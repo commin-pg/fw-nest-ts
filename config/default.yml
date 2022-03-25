@@ -2,11 +2,11 @@ server:
   port: 3002
   
 db:
-  type: 'mysql'
-  port: 3316
+  type: 'postgres'
+  port: 5432
   database: 'auth_db'
   host: '127.0.0.1'
-  username: 'root'
+  username: 'sa'
   password: 'khm0813'
   synchronize: true
 

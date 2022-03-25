@@ -1,20 +1,43 @@
 version: '3.8'
 
 services:  
-  mariadb:
-     image: mariadb:latest
-     container_name: dev-mariadb
-     restart: always
-     ports:
-       - 3316:3306
-     environment:
-       TZ: Asia/Seoul
-       MYSQL_ROOT_PASSWORD: khm0813
-       MYSQL_USER: admin
-       MYSQL_PASSWORD: khm0813
-     command:
-       - --character-set-server=utf8mb4
-       - --collation-server=utf8mb4_unicode_ci
-       - --skip-character-set-client-handshake
-     volumes:
-       - ./dev-mariadb/data:/var/lib/mysql
+  # mariadb:
+  #    image: mariadb:latest
+  #    container_name: dev-mariadb
+  #    restart: always
+  #    ports:
+  #      - 3316:3306
+  #    environment:
+  #      TZ: Asia/Seoul
+  #      MYSQL_ROOT_PASSWORD: khm0813
+  #      MYSQL_USER: admin
+  #      MYSQL_PASSWORD: khm0813
+  #    command:
+  #      - --character-set-server=utf8mb4
+  #      - --collation-server=utf8mb4_unicode_ci
+  #      - --skip-character-set-client-handshake
+  #    volumes:
+  #      - ./dev-mariadb/data:/var/lib/mysql
+  postgres:
+    container_name: postgres
+    image: postgres:12
+    ports:
+        - 5432:5432
+    environment:
+        POSTGRES_USER: sa
+        POSTGRES_PASSWORD: khm0813
+        POSTGRES_DB: auth_db
+        PG_DATA: /var/lib/postgresql/data
+    volumes:
+        - ./pgdata:/var/lib/postgres/data
+  pgadmin:
+    container_name: pg_admin
+    image: dpage/pgadmin4
+    environment:
+        PGADMIN_DEFAULT_EMAIL: khm0813@pgadmin.com
+        PGADMIN_DEFAULT_PASSWORD: khm0813
+    ports:
+        - 5555:80
+    volumes:
+        - ./pgdata/pgadmin/data:/var/lib/pgadmin
+    

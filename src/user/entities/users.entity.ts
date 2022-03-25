@@ -1,5 +1,6 @@
 import { Exclude } from "class-transformer";
-import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
+import { Todo } from "src/todos/entity/todo.entity";
+import { Column, Entity, OneToMany, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class User {
@@ -22,4 +23,7 @@ export class User {
   @Exclude()
   currentHashedRefreshToken?: string;
 
+
+  @OneToMany(type=>Todo, todo => todo.user)
+  todos: Todo[]
 }

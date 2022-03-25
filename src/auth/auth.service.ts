@@ -93,16 +93,26 @@ export class AuthService {
     };
   }
 
+  async logout(user: User) {
+    const result = this.userRepository.update(
+      { seq: user.seq, userId: user.userId },
+      {
+        currentHashedRefreshToken:""
+      }
+    );
+    return result;
+  }
+
   async refreshAccessToken(authorization: string, userId: string) {
     const secretKey = jwtConfig.refresh_secret;
     const refreshToken = authorization.replace("Bearer ", "");
-    console.log(refreshToken)
+    console.log(refreshToken);
     const verify = this.jwtService.verify(refreshToken, { secret: secretKey });
 
     // refreshToken 만료 안된경우 accessToken 새로 발급
     if (verify) {
       const user = await this.userService.findOneByUserId(userId);
-      console.log("user",user)
+      console.log("user", user);
 
       // db에 저장된 토큰과 비교
       if (user.currentHashedRefreshToken == refreshToken) {

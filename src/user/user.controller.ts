@@ -38,9 +38,9 @@ export class UserController {
       .create(createUserDto)
       .then((result) => {
         if (result) {
-          new CustomResponse<any>(res).OK(result)
+          new CustomResponse<any>(res).OK(result);
         } else {
-          new CustomResponse<any>(res)._OK()
+          new CustomResponse<any>(res)._OK();
         }
       })
       .catch((e) => {
@@ -66,7 +66,7 @@ export class UserController {
     this.authService
       .refreshAccessToken(authorization, dto.userId)
       .then((result) => {
-        new CustomResponse<any>(res).OK(result)
+        new CustomResponse<any>(res).OK(result);
       })
       .catch((e) => {
         logger.error(e);
@@ -90,7 +90,7 @@ export class UserController {
     this.authService
       .validateAccessToken(authorization, req.user["userId"])
       .then((result) => {
-        new CustomResponse<any>(res).OK(result)
+        new CustomResponse<any>(res).OK(result);
       })
       .catch((e) => {
         logger.error(e);
@@ -126,4 +126,21 @@ export class UserController {
       new CustomResponse<any>(res).OK(result);
     });
   }
+
+  @Get("/check/:userId")
+  public async dupUserId(
+    @Res() res: Response,
+    @Param("userId") userId: string
+  ): Promise<any> {
+    return this.userService.checkUserId(userId).then((result) => {
+      if (result) {
+        new CustomResponse<any>(res).OK({ isExist: true });
+      } else {
+        new CustomResponse<any>(res).OK({ isExist: false });
+      }
+    });
+  }
+
+
+  
 }

@@ -8,14 +8,15 @@ import { UserModule } from "./user/user.module";
 import { AuthModule } from "./auth/auth.module";
 import { JwtModule } from "@nestjs/jwt";
 // import { Auth } from './auth';
+import { TodosModule } from './todos/todos.module';
 import * as config from "config";
 const jwtConfig = config.get("jwt");
 @Module({
   imports: [
     TypeOrmModule.forRoot(typeORMConfig),
-
     UserModule,
     AuthModule,
+    TodosModule,
   ],
   controllers: [AppController],
   providers: [AppService],

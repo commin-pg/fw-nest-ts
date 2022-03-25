@@ -2,14 +2,11 @@ import {
   Body,
   Controller,
   Get,
-  Logger,
-  Param,
-  Post,
-  Req,
-  Res,
-  UseGuards,
+  Logger, Post,
+  Req, Res, UseGuards
 } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { CustomResponse } from "src/common/response";
 import { User } from "src/user/entities/users.entity";
 import { AuthService } from "./auth.service";
 import { LoginUserDto } from "./dto/login-user.dto";
@@ -26,6 +23,16 @@ export class AuthController {
   @Post("login")
   async login(@Req() req,@Body() userInfo:LoginUserDto) {
     return this.authService.login(req.user as User);
+  }
+
+  @ApiBearerAuth("accessToken")
+  @UseGuards(JwtAuthGuard)
+  @Post("/logout")
+  async logout(
+    @Req() req,
+    @Res() res
+  ){
+    return new CustomResponse<any>(res).OK(this.authService.logout(req.user as User));
   }
 
   @UseGuards(JwtAuthGuard)

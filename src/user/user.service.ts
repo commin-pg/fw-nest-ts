@@ -19,7 +19,7 @@ export class UserService {
     });
     if (isExist) {
       throw new ForbiddenException({
-        statusCode: ERROR_CODE.JOIN_FAIL.CODE
+        statusCode: ERROR_CODE.JOIN_FAIL.CODE,
       });
     }
 
@@ -44,15 +44,41 @@ export class UserService {
     return this.userRepository.findOne(
       { userId: userId },
       {
-        select: ["seq", "userId", "userName", "role","currentHashedRefreshToken"],
+        select: [
+          "seq",
+          "userId",
+          "userName",
+          "role",
+          "currentHashedRefreshToken",
+        ],
       }
     );
   }
 
 
-  public async updateRefreshBySeq(seq: number,refresh:string):Promise<User|undefined>{
-    const userNew = await this.userRepository.findOne({seq:seq});
-    userNew.currentHashedRefreshToken = refresh
+  
+  public async findOneByUserSeq(seq: number): Promise<User | undefined> {
+    return this.userRepository.findOne(
+     seq
+    );
+  }
+
+  public async checkUserId(userId: string): Promise<User | undefined> {
+    const isExist = await this.userRepository.findOne(
+      {
+        userId: userId,
+      },
+      { select: ["userId"] }
+    );
+    return isExist;
+  }
+
+  public async updateRefreshBySeq(
+    seq: number,
+    refresh: string
+  ): Promise<User | undefined> {
+    const userNew = await this.userRepository.findOne({ seq: seq });
+    userNew.currentHashedRefreshToken = refresh;
     return await this.userRepository.save(userNew);
   }
 }
