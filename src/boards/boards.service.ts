@@ -170,17 +170,16 @@ export class BoardsService {
 
 
   async deleteBoardComment(boardCommentId:number, user:User){
-    const boardComment = await this.boardCommentRepository.createQueryBuilder('boardComment').where('boardComment.id = :boardCommentId',{boardCommentId}).getOne().then(boardComment => {
-      if(boardComment.id === user.id){
+    const result = await this.boardCommentRepository.createQueryBuilder('boardComment').where('boardComment.id = :boardCommentId and boardComment.createById = :createById',{boardCommentId,createById:user.id}).getOne().then(boardComment => {
+      if(boardComment)
         return this.boardCommentRepository.delete(boardComment.id);
-      }
-      return null;
-        
+      else 
+        return null;
     })
-
-    if(!boardComment){
+    console.log(result)
+    if(!result){
       throw new UnauthorizedException();
     }
-    return boardComment;
+    return result;
   }
 }
