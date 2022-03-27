@@ -12,9 +12,12 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 import { BoardsService } from './boards.service';
+import {  CreateBoardCommentDTO } from './dto/create-board-comment.dto';
 import { CreateBoardDTO } from './dto/create-board.dto';
+import { UpdateBoardCommentDTO } from './dto/update-board-comment.dto';
 import { UpdateBoardDTO } from './dto/update-board.dto';
 import { Board } from './entity/board.entity';
+import { BoardComment } from './entity/board_comment.entity';
 
 @Controller('/api/boards')
 @ApiTags('게시판 API')
@@ -31,6 +34,12 @@ export class BoardsController {
     @Body() createBoardDTO: CreateBoardDTO,
   ): Promise<Board> {
     return this.boardService.createBoard(createBoardDTO, req.user);
+  }
+
+  @Post('/comment')
+  @UseGuards(AuthGuard())
+  createBoardComment(@Req() req, @Body() createBoardCommentDTO:CreateBoardCommentDTO):Promise<BoardComment>{
+    return this.boardService.createBoardComment(createBoardCommentDTO,req.user);
   }
 
   // 다 가져오기
@@ -63,11 +72,29 @@ export class BoardsController {
     return this.boardService.updateBoard(updateBoardDTO, req.user);
   }
 
+  @Put('/comment/update')
+  @UseGuards(AuthGuard())
+  updateBoardComment(@Req() req, @Body() updateBoardComment: UpdateBoardCommentDTO){
+    return this.boardService.updateBoardComment(updateBoardComment,req.user);
+  }
+
   @Delete('/delete/:id')
   @UseGuards(AuthGuard())
   remove(@Param('id') id: number, @Req() req) {
     return this.boardService
       .deleteBoard(id, req.user)
+      .then((result) => result)
+      .catch((e) => {
+        throw e;
+      });
+  }
+
+
+  @Delete('/comment/delete/:commentId')
+  @UseGuards(AuthGuard())
+  removeBoardComment(@Param('commentId') commentId: number, @Req() req) {
+    return this.boardService
+      .deleteBoardComment(commentId, req.user)
       .then((result) => result)
       .catch((e) => {
         throw e;

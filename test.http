@@ -1,4 +1,4 @@
-@endpoint=http://127.0.0.1:3000
+@endpoint=http://127.0.0.1:3000/api
 
 ###
 
@@ -48,3 +48,13 @@ Content-Type: application/json
   "password":"1234",
 
 }
+
+
+
+###
+
+GET {{endpoint}}/todos/page?limit=1&page=4
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcklkIjoiYWRtaW4iLCJpYXQiOjE2NDgzODM1OTAsImV4cCI6MTY0ODM4NzE5MH0.7LZE2fgfPB6SDM0fRi1jiEmFgWA4hWZzHfDn21ZsC-M
+
+
