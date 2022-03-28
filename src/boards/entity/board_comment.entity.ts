@@ -26,8 +26,8 @@ export class BoardComment extends BaseEntity {
   @Column({ nullable: true })
   modifyAt: string;
 
-  @Column({ nullable: true, type:'int'})
-  modifyBy: number;
+  @Column({ nullable: true, type:'varchar'})
+  modifyBy: string;
 
   @ManyToOne((type) => User, (user) => user.boardComments, { eager: true })
   createBy: User;

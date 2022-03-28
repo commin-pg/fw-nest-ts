@@ -120,7 +120,10 @@ export class TodosService {
         const todoItem = new TodoItem();
         todoItem.content = updateTodo.content;
         todoItem.complete = updateTodo.complete;
-        todoItem.completeAt = new Date().toISOString();
+        if(updateTodo.complete)
+          todoItem.completeAt = new Date().toISOString();
+        else
+          todoItem.completeAt = null;
         todoItem.id = updateTodo.todoItemId;
         todoItem.todo = todo;
         return this.todoItemRepository.save(todoItem);

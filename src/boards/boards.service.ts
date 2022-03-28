@@ -87,7 +87,7 @@ export class BoardsService {
           .then((boardComment) => {
             boardComment.comment = updateBoardCommentDTO.comment;
             boardComment.modifyAt = new Date().toISOString();
-            boardComment.modifyBy = user.id;
+            boardComment.modifyBy = user.userId;
             console.log(boardComment);
             return this.boardCommentRepository.save(boardComment);
           });
@@ -141,6 +141,8 @@ export class BoardsService {
       if (b.createBy.userId === user.userId) {
         b.title = updateBoardDTO.title;
         b.content = updateBoardDTO.content;
+        b.modifyAt = new Date().toISOString();
+        b.modifyBy = user.userId;
         return this.boardRepository.save(b);
       }
       return null;
