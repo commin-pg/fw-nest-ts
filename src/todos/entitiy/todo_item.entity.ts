@@ -23,6 +23,6 @@ export class TodoItem
   })
   createAt: string;
 
-  @ManyToOne((type) => Todo, (todo) => todo.todoItems, { eager: true })
+  @ManyToOne((type) => Todo, (todo) => todo.todoItems, { eager: true, onDelete: 'CASCADE' })
   todo: Todo;
 }

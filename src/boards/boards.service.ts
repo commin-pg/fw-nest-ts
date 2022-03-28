@@ -171,7 +171,10 @@ export class BoardsService {
 
   async deleteBoardComment(boardCommentId:number, user:User){
     const result = await this.boardCommentRepository.createQueryBuilder('boardComment').where('boardComment.id = :boardCommentId and boardComment.createById = :createById',{boardCommentId,createById:user.id}).getOne().then(boardComment => {
+     
+      console.log("board Comment : : ",boardComment)
       if(boardComment)
+      
         return this.boardCommentRepository.delete(boardComment.id);
       else 
         return null;

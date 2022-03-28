@@ -8,10 +8,12 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
 import { Repository } from 'typeorm';
+import { _createAccessToken, _createRefreshToken } from './auth.util';
 import { AuthCredentialDTO } from './dto/auth-credential.dto';
 import { LoginDTO } from './dto/login.dto';
 import { LoginSuccessInfo } from './dto/login.success.info';
 import { User } from './entity/user.entity';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -41,7 +43,7 @@ export class AuthService {
     const { userId, password } = userData;
     const query = this.userRepository.createQueryBuilder('user');
 
-    console.log(userData)
+    console.log(userData);
 
     const user = await query
       .select([
@@ -50,7 +52,7 @@ export class AuthService {
         'user.userId as userId',
         'user.password as password',
       ])
-      .where('user.userId = :userId',{userId})
+      .where('user.userId = :userId', { userId })
       .getRawOne();
     console.log('login query result = ', user);
 
@@ -62,16 +64,19 @@ export class AuthService {
     if (ss) {
       // 유저 토큰 생성
       const payload = { id: user.id, userId: userId };
-      const accessToken = await this.jwtService.sign(payload);
+      const accessToken = await _createAccessToken(this.jwtService, payload);
       const refPayload = { userId: userId };
-      const refreshToken = await this.jwtService.sign(refPayload);
+      const refreshToken = await _createRefreshToken(
+        this.jwtService,
+        refPayload,
+      );
 
       // const resultUserData:resultUser = {
       //   id:user.id,
       //   userId:user.userId,
       //   username:user.username
       // }
-      const { id, username,  } = user;
+      const { id, username } = user;
 
       const result: LoginSuccessInfo = {
         accessToken: undefined,

@@ -6,10 +6,8 @@ import {
   Param,
   Post,
   Put,
-  Req,
-  UseGuards,
+  Req
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 import { CreateTodoItemDTO } from './dto/create-todo-item.dto';
@@ -21,18 +19,17 @@ import { TodosService } from './todos.service';
 @Controller('/api/todos')
 @ApiTags('TODO')
 @ApiBearerAuth('accessToken')
+// @UseGuards(JwtAuthGuard)
 export class TodosController {
   constructor(private todoService: TodosService) {}
 
   // Cretae
   @Post('')
-  @UseGuards(AuthGuard())
   createTodo(@Req() req, @Body() createTodoDto: CreateTodoDTO): Promise<any> {
     return this.todoService.createTodo(createTodoDto, req.user);
   }
 
   @Post('/item')
-  @UseGuards(AuthGuard())
   createTodoItem(
     @Req() req,
     @Body() createTodoItem: CreateTodoItemDTO,
@@ -42,14 +39,14 @@ export class TodosController {
 
   // Read
 
+
   @Get('/all')
-  @UseGuards(AuthGuard())
   todoReadAll(@Req() req): Promise<Todo[]> {
+    console.log(req.user)
     return this.todoService.todoReadAll(req.user);
   }
 
   @Get('/detail/:todoTitle')
-  @UseGuards(AuthGuard())
   getTodoDetail(
     @Req() req,
     @Param('todoTitle') todoTitle: string,
@@ -59,14 +56,13 @@ export class TodosController {
 
   // 페이징해서 가져오기
   @Get('/page')
-  getPagingBoard(@Paginate() query: PaginateQuery): Promise<Paginated<Todo>> {
-    return this.todoService.getPagingTodo(query);
+  getPagingBoard(@Paginate() query: PaginateQuery,@Req() req): Promise<Paginated<Todo>> {
+    return this.todoService.getPagingTodo(query, req.user);
   }
 
   // Update
 
   @Put('/item')
-  @UseGuards(AuthGuard())
   updateTodoItem(
     @Req() req,
     @Body() updateTodoItemDTO: UpdateTodoItemDTO,
@@ -76,9 +72,14 @@ export class TodosController {
 
   // Delete
 
-  @Delete('/item/delete/:id')
-  @UseGuards(AuthGuard())
-  deleteTodoItem(@Req() req, @Param('id') deleteId: number) {
-    this.todoService.deleteTodoItem(deleteId, req.user);
+  @Delete('/delete/:id')
+  deleteTodo(@Req() req, @Param('id') deleteId:number){
+    return this.todoService.deleteTodo(deleteId, req.user);
   }
+
+  @Delete('/item/delete/:id')
+  deleteTodoItem(@Req() req, @Param('id') deleteId: number) {
+   return this.todoService.deleteTodoItem(deleteId, req.user);
+  }
+
 }
