@@ -6,10 +6,11 @@ import { AuthModule } from './auth/auth.module';
 import { TodosModule } from './todos/todos.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/jwt.auth.guard';
+import { FinanceModule } from './finance/finance.module';
 
 
 @Module({
-  imports: [ TypeOrmModule.forRoot(typeORMConfig) ,BoardsModule, AuthModule, TodosModule],
+  imports: [ TypeOrmModule.forRoot(typeORMConfig) ,BoardsModule, AuthModule, TodosModule, FinanceModule],
   controllers: [],
   providers: [{
     provide:APP_GUARD,

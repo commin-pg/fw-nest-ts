@@ -32,6 +32,6 @@ export class BoardComment extends BaseEntity {
   @ManyToOne((type) => User, (user) => user.boardComments, { eager: true })
   createBy: User;
 
-  @ManyToOne((type) => Board, (board) => board.boardComments, { eager: false })
+  @ManyToOne((type) => Board, (board) => board.boardComments, { eager: false , onDelete: 'CASCADE' })
   board: Board;
 }
