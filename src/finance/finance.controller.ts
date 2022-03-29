@@ -10,7 +10,8 @@ export class FinanceController {
 
     @Public()
     @Get()
-    crwaling(){
-        this.financeService.crwaling();
+   async crwaling(){
+      return await this.financeService.crwalingNaver();
+    //  await this.financeService.test();
     }
 }

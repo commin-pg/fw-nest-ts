@@ -1,4 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { FinanceType } from '../finance.service';
 
 // case "CASH_LESS":
 // 						cashlessModelList.add(model_);
@@ -39,6 +40,7 @@ export enum SutableType {
 export class Finance {
   @PrimaryGeneratedColumn()
   id: number;
+
   @Column({
     nullable: false,
     type: 'timestamp',
@@ -49,6 +51,9 @@ export class Finance {
   dateKey: string;
   @Column({ type: 'varchar', nullable: false, primary: true })
   compayName: string;
+
+  @Column({type:'int'})
+  rank:number;
 
   @Column({ type: 'varchar' })
   compayFinanceDetailUrl: string;
@@ -67,8 +72,12 @@ export class Finance {
   perRate: number;
   @Column({ type: 'decimal', nullable: false })
   pbrRate: number;
-  @Column({ type: 'decimal', nullable: false })
-  year_sales: number;
+
+  @Column({ type: 'decimal', nullable: false, array:true })
+  year_sales: number[];
+  @Column({ type: 'decimal', nullable: false, array:true })
+  current_quarter_sales:number[];
+
   @Column({ type: 'decimal', nullable: false })
   sale_profit_rate: number;
   @Column({ type: 'decimal', nullable: false })
@@ -77,6 +86,8 @@ export class Finance {
   dept_rate: number;
   @Column({ type: 'decimal', nullable: false })
   psr_rate: number;
+  @Column({ type: 'decimal', nullable: false })
+  cash_rate:number;
 
   @Column({
     type: 'enum',
@@ -85,4 +96,10 @@ export class Finance {
     nullable: false,
   })
   sutableType: SutableType;
+
+  @Column({
+    type: 'varchar',
+    nullable: false,
+  })
+  financeType: string;
 }
