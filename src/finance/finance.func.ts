@@ -8,7 +8,7 @@ import {
   FINANCE_BASE_URL,
 } from './finance.service';
 import { Injectable } from '@nestjs/common';
-import { commaReplace } from './finance.util';
+import { commaReplace, formatYMD } from './finance.util';
 
 @Injectable()
 export class FinanceFunc {
@@ -18,6 +18,7 @@ export class FinanceFunc {
     // * 1. PER 15 이하 (단, 0보다 커야함)
 
     model.sutableType = SutableType.SUTABLE;
+    model.dateKey = formatYMD(new Date());
 
     // if (model.perRate && (model.perRate < 0 || model.perRate > 15)) {
     //   if (model.perRate > 15 && model.perRate <= 25) {
@@ -66,7 +67,7 @@ export class FinanceFunc {
             if (ele.type == 'tag') {
               //   console.log(index, ele.firstChild.data.trim());
               tableData.push(
-                ele.firstChild.data.trim()
+                ele.firstChild.data?.trim()
                   ? Number(commaReplace(ele.firstChild.data.trim()))
                   : undefined,
               );
@@ -88,12 +89,12 @@ export class FinanceFunc {
 
     //
     const year_sales: number[] = [
-      tableData[0],
+      tableData[0] ?? 0.0,
       tableData[1] ?? 0.0,
       tableData[2] ?? 0.0,
     ];
     const current_quarter_sales: number[] = [
-      tableData[4],
+      tableData[4] ?? 0.0,
       tableData[5] ?? 0.0,
       tableData[6] ?? 0.0,
       tableData[7] ?? 0.0,
@@ -104,14 +105,14 @@ export class FinanceFunc {
     // PSR 로 변경
     const psr_rate: number = model.totalMarketCap / year_sales[2];
     if (psr_rate <= 1) {
-      model.year_sales = year_sales;
-      model.current_quarter_sales = current_quarter_sales;
-      model.psr_rate = psr_rate;
+      model.yearSales = year_sales;
+      model.currentQuarterSales = current_quarter_sales;
+      model.psrRate = psr_rate;
     } else {
       if (psr_rate <= 1.2) {
-        model.year_sales = year_sales;
-        model.current_quarter_sales = current_quarter_sales;
-        model.psr_rate = psr_rate;
+        model.yearSales = year_sales;
+        model.currentQuarterSales = current_quarter_sales;
+        model.psrRate = psr_rate;
         if (model.sutableType === SutableType.SUTABLE) {
           model.sutableType = SutableType.PSR_LESS;
         } else {
@@ -138,7 +139,7 @@ export class FinanceFunc {
 
     // 이익률 체크
     const sales_profits: number[] = [
-      tableData[30],
+      tableData[30] ?? undefined,
       tableData[31] ?? undefined,
       tableData[32] ?? undefined,
     ];
@@ -147,10 +148,10 @@ export class FinanceFunc {
     for (var i = 0; i < sales_profits.length; i++)
       if (sales_profits[i]) sale_profit_rate = sales_profits[i];
     if (sale_profit_rate >= 3) {
-      model.sale_profit_rate = sale_profit_rate;
+      model.saleProfitRate = sale_profit_rate;
     } else {
       if (sale_profit_rate >= 1) {
-        model.sale_profit_rate = sale_profit_rate;
+        model.saleProfitRate = sale_profit_rate;
         if (model.sutableType === SutableType.SUTABLE) {
           model.sutableType = SutableType.PROFIT_LESS;
         } else {
@@ -162,7 +163,7 @@ export class FinanceFunc {
     }
 
     const sales_pure_profits: number[] = [
-      tableData[40],
+      tableData[40] ?? undefined,
       tableData[41] ?? undefined,
       tableData[42] ?? undefined,
     ];
@@ -171,10 +172,10 @@ export class FinanceFunc {
     for (var i = 0; i < sales_pure_profits.length; i++)
       if (sales_pure_profits[i]) sale_pure_profit_rate = sales_pure_profits[i];
     if (sale_pure_profit_rate >= 3) {
-      model.sale_pure_profit_rate = sale_pure_profit_rate;
+      model.salePureProfitRate = sale_pure_profit_rate;
     } else {
       if (sale_pure_profit_rate >= 1) {
-        model.sale_pure_profit_rate = sale_pure_profit_rate;
+        model.salePureProfitRate = sale_pure_profit_rate;
         if (model.sutableType === SutableType.SUTABLE) {
           model.sutableType = SutableType.PROFIT_LESS;
         } else {
@@ -194,10 +195,10 @@ export class FinanceFunc {
     var dept_rate: number = null;
     for (var i = 0; i < depts.length; i++) if (depts[i]) dept_rate = depts[i];
     if (dept_rate <= 150) {
-      model.dept_rate = dept_rate;
+      model.deptRate = dept_rate;
     } else {
       if (dept_rate <= 250) {
-        model.dept_rate = dept_rate;
+        model.deptRate = dept_rate;
         if (model.sutableType === SutableType.SUTABLE) {
           model.sutableType = SutableType.DEPT_LESS;
         } else {
@@ -219,10 +220,10 @@ export class FinanceFunc {
       if (cash_rates[i]) cash_rate = cash_rates[i];
 
     if (cash_rate >= 1000) {
-      model.cash_rate = cash_rate;
+      model.cashRate = cash_rate;
     } else {
       if (cash_rate >= 800) {
-        model.cash_rate = cash_rate;
+        model.cashRate = cash_rate;
         if (model.sutableType === SutableType.SUTABLE) {
           model.sutableType = SutableType.CASH_LESS;
         } else {

@@ -1,3 +1,4 @@
+import { IsEnum } from 'class-validator';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { FinanceType } from '../finance.service';
 
@@ -25,15 +26,15 @@ import { FinanceType } from '../finance.service';
 // 					case "OTHER":
 // 						otherModelList.add(model_);
 export enum SutableType {
-  SUTABLE,
-  CASH_LESS,
-  DEPT_LESS,
-  SHARE_LESS,
-  PER_LESS,
-  PBR_LESS,
-  PSR_LESS,
-  PROFIT_LESS,
-  OTHER,
+  SUTABLE='SUTABLE',
+  CASH_LESS='CASH_LESS',
+  DEPT_LESS='DEPT_LESS',
+  SHARE_LESS='SHARE_LESS',
+  PER_LESS='PER_LESS',
+  PBR_LESS='PBR_LESS',
+  PSR_LESS='PSR_LESS',
+  PROFIT_LESS='PROFIT_LESS',
+  OTHER='OTHER',
 }
 
 @Entity()
@@ -53,7 +54,7 @@ export class Finance {
   compayName: string;
 
   @Column({type:'int'})
-  rank:number;
+  public rank:number;
 
   @Column({ type: 'varchar' })
   compayFinanceDetailUrl: string;
@@ -74,24 +75,25 @@ export class Finance {
   pbrRate: number;
 
   @Column({ type: 'decimal', nullable: false, array:true })
-  year_sales: number[];
+  yearSales: number[];
   @Column({ type: 'decimal', nullable: false, array:true })
-  current_quarter_sales:number[];
+  currentQuarterSales:number[];
 
   @Column({ type: 'decimal', nullable: false })
-  sale_profit_rate: number;
+  saleProfitRate: number;
   @Column({ type: 'decimal', nullable: false })
-  sale_pure_profit_rate: number;
+  salePureProfitRate: number;
   @Column({ type: 'decimal', nullable: false })
-  dept_rate: number;
+  deptRate: number;
   @Column({ type: 'decimal', nullable: false })
-  psr_rate: number;
+  psrRate: number;
   @Column({ type: 'decimal', nullable: false })
-  cash_rate:number;
+  cashRate:number;
 
+  @IsEnum(SutableType)
   @Column({
-    type: 'enum',
-    enum: SutableType,
+    type: 'text',
+    // enum: SutableType,
     default: SutableType.SUTABLE,
     nullable: false,
   })

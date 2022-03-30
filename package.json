@@ -53,6 +53,7 @@
         "swagger": "^0.7.5",
         "swagger-ui-express": "^4.3.0",
         "typeorm": "^0.3.0",
+        "typeorm-naming-strategies": "^4.1.0",
         "uuid": "^8.3.2"
     },
     "devDependencies": {

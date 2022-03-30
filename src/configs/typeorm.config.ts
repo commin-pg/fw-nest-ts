@@ -1,5 +1,6 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import * as config from 'config'
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
 
 const dbConfig = config.get('db');
@@ -26,5 +27,7 @@ export const typeORMConfig: TypeOrmModuleOptions = {
   migrations: [__dirname + '/migrations/*{.ts,.js}'],
   migrationsTableName: "migrations_history",
   migrationsRun: true,
+  timezone:'Asia/Seoul',
+  namingStrategy: new SnakeNamingStrategy(), 
   
 };
