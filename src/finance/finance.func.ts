@@ -7,8 +7,9 @@ import {
   FINANCE_BASE_TABLE_URL,
   FINANCE_BASE_URL,
 } from './finance.service';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { commaReplace, formatYMD } from './finance.util';
+
 
 @Injectable()
 export class FinanceFunc {
@@ -20,13 +21,36 @@ export class FinanceFunc {
     model.sutableType = SutableType.SUTABLE;
     model.dateKey = formatYMD(new Date());
 
-    // if (model.perRate && (model.perRate < 0 || model.perRate > 15)) {
-    //   if (model.perRate > 15 && model.perRate <= 25) {
-    //     model.sutableType = SutableType.PER_LESS;
-    //   } else {
-    //     return null;
-    //   }
-    // }
+    //		 * 저평가주여도 제외
+    //		 *
+    //		 * 1 홀딩스(지주회사)
+    //		 *
+    //		 * 2 중국주
+    //		 *
+    //		 * 3 우선주
+    //		 *
+    //		 * 4 금융주
+    //		 *
+    //		 * 5 신규상장주
+
+    if (
+      model.compayName.includes('홀딩스') ||
+      model.compayName.includes('지주') ||
+      model.compayName.includes('금융') ||
+      model.compayFinanceDetailUrl.match('.*code=9.*')
+    ) {
+      Logger.log(`[${model.compayName}] 은 홀딩스/지주/금융/중국주 중에 하나 이므로 제외합니다.`)
+      return null;
+    }
+
+    if (model.perRate && (model.perRate < 0 || model.perRate > 15)) {
+      if (model.perRate > 15 && model.perRate <= 25) {
+        model.sutableType = SutableType.PER_LESS;
+      } else {
+        Logger.log(`[${model.compayName}] 은 PER 가 기준에 충족하지 않습니다.`)
+        return null;
+      }
+    }
 
     // * 8. 상장주식수 1000만~8000만
     // MINIMUM_SHARES_NUMBER(1 * 10000),
@@ -34,16 +58,17 @@ export class FinanceFunc {
     //  MAJI_MINIMUM_SHARES_NUMBER(1 * 5000),
     //   MAJI_MAXIMUM_SHARES_NUMBER(8 * 12000);
 
-    // if (
-    //   model.sharesNumber &&
-    //   (model.sharesNumber < 1 * 10000 || model.sharesNumber > 8 * 10000)
-    // ) {
-    //   if (model.sharesNumber < 1 * 5000 || model.sharesNumber > 8 * 12000) {
-    //     return null;
-    //   } else {
-    //     model.sutableType = SutableType.SHARE_LESS;
-    //   }
-    // }
+    if (
+      model.sharesNumber &&
+      (model.sharesNumber < 1 * 10000 || model.sharesNumber > 8 * 10000)
+    ) {
+      if (model.sharesNumber < 1 * 5000 || model.sharesNumber > 8 * 12000) {
+        Logger.log(`[${model.compayName}] 은 상장주식수 가 기준에 충족하지 않습니다.`)
+        return null;
+      } else {
+        model.sutableType = SutableType.SHARE_LESS;
+      }
+    }
 
     const tableData: void | number[] = await axios
       .get(model.compayFinanceDetailUrl, {
@@ -119,6 +144,7 @@ export class FinanceFunc {
           model.sutableType = SutableType.OTHER;
         }
       } else {
+        Logger.log(`[${model.compayName}] 은 PSR 가 기준에 충족하지 않습니다.`)
         return null;
       }
     }
@@ -133,6 +159,7 @@ export class FinanceFunc {
           model.sutableType = SutableType.OTHER;
         }
       } else {
+        Logger.log(`[${model.compayName}] 은 PBR 가 기준에 충족하지 않습니다.`)
         return null;
       }
     }
@@ -158,6 +185,7 @@ export class FinanceFunc {
           model.sutableType = SutableType.OTHER;
         }
       } else {
+        Logger.log(`[${model.compayName}] 은 영업이익률 가 기준에 충족하지 않습니다.`)
         return null;
       }
     }
@@ -182,6 +210,7 @@ export class FinanceFunc {
           model.sutableType = SutableType.OTHER;
         }
       } else {
+        Logger.log(`[${model.compayName}] 은 순이익률 가 기준에 충족하지 않습니다.`)
         return null;
       }
     }
@@ -205,6 +234,7 @@ export class FinanceFunc {
           model.sutableType = SutableType.OTHER;
         }
       } else {
+        Logger.log(`[${model.compayName}] 은 부채율 가 기준에 충족하지 않습니다.`)
         return null;
       }
     }
@@ -230,6 +260,7 @@ export class FinanceFunc {
           model.sutableType = SutableType.OTHER;
         }
       } else {
+        Logger.log(`[${model.compayName}] 은 유보율 가 기준에 충족하지 않습니다.`)
         return null;
       }
     }
@@ -278,65 +309,44 @@ export class FinanceFunc {
                         switch (index2) {
                           case 0: // 현재가
                             result.currentFinancePrice = Number(
-                              ele2.firstChild.data
-                                .replace(',', '')
-                                .replace(',', ''),
+                              commaReplace(ele2.firstChild.data),
                             );
                             break;
                           case 3: // 액면가
                             result.facePrice = Number(
-                              ele2.firstChild.data
-                                .replace(',', '')
-                                .replace(',', ''),
+                              commaReplace(ele2.firstChild.data),
                             );
                             break;
                           case 4: // 시가총액
                             result.totalMarketCap = Number(
-                              ele2.firstChild.data
-                                .replace(',', '')
-                                .replace(',', ''),
+                              commaReplace(ele2.firstChild.data),
                             );
                             break;
                           case 5: // 상장주식수
                             result.sharesNumber = Number(
-                              ele2.firstChild.data
-                                .replace(',', '')
-                                .replace(',', ''),
+                              commaReplace(ele2.firstChild.data),
                             );
                             break;
                           case 7: // 거래량
                             result.tradeAmount = Number(
-                              ele2.firstChild.data
-                                .replace(',', '')
-                                .replace(',', '')
-                                .replace(',', ''),
+                              commaReplace(ele2.firstChild.data),
                             );
                             break;
                           case 8: // PER
                             result.perRate = Number(ele2.firstChild.data);
-
                             break;
                         }
                       }
                     });
-
-                  //    this.sutableCheck(result).then(model => {
-
-                  //   })
-                  //   if(model){
-
-                  //   }
                   this.sutableCheck(result).then((model) => {
                     if (model) financeResultList.push(model);
                   });
-
-                
                 }
               });
           });
       }
     }
-    console.log(financeResultList)
+    console.log(financeResultList);
     return financeResultList;
   }
 }

@@ -26,8 +26,9 @@ services:
     environment:
         POSTGRES_USER: sa
         POSTGRES_PASSWORD: khm0813
-        POSTGRES_DB: auth_db
+        POSTGRES_DB: exam_db
         PG_DATA: /var/lib/postgresql/data
+        TZ: 'Asia/Seoul'
     volumes:
         - ./pgdata:/var/lib/postgres/data
   pgadmin:
@@ -37,6 +38,4 @@ services:
         PGADMIN_DEFAULT_EMAIL: khm0813@pgadmin.com
         PGADMIN_DEFAULT_PASSWORD: khm0813
     ports:
-        - 5555:80
-    volumes:
-        - ./pgdata/pgadmin/data:/var/lib/pgadmin
+        - 5050:80

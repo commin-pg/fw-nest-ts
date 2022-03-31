@@ -1,9 +1,8 @@
 export function commaReplace(str: string) {
-  return str
-    ?.replace(',', '')
-    ?.replace(',', '')
-    ?.replace(',', '')
-    ?.replace(',', '');
+  while (str?.includes(',')) {
+    str = str?.replace(',', '');
+  }
+  return str;
 }
 
 export function formatYMD(date: Date) {
