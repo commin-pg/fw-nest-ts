@@ -6,13 +6,8 @@ db:
   port: 5432
   database: 'exam_db'
   host: '127.0.0.1'
-<<<<<<< HEAD
   username: 'postgres'
   password: 'postgres'
-=======
-  username: 'sa'
-  password: 'khm0813'
->>>>>>> 6c9269bae7f948e7d262b7d7c06d5fd1b3dd6650
   synchronize: true
 
 jwt:
