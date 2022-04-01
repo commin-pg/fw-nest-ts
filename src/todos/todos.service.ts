@@ -73,16 +73,14 @@ export class TodosService {
     console.log('QUERT', query);
     const quertBuilder = this.todoRepository
       .createQueryBuilder('todo')
-      .innerJoinAndSelect('todo.user', 'user')
-      .leftJoinAndSelect('todo.todoItems', 'todo_item')
-      .where('todo.user_id = :userId', { userId: user.id });
+      .innerJoinAndSelect('todo.user', 'user').where('user.id = :userId', {userId:user.id})
+      .leftJoinAndSelect('todo.todoItems', 'todo_item');
 
     return paginate(query, quertBuilder, {
       sortableColumns: ['id', 'dateTitle', 'todoItems.createAt'],
       searchableColumns: ['dateTitle'],
       defaultSortBy: [
         ['dateTitle', 'DESC'],
-        ['todoItems.createAt', 'ASC'],
       ],
       relations: ['todoItems'],
     });
