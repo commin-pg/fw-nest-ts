@@ -5,7 +5,7 @@ db:
   type: 'postgres'
   port: 5432
   database: 'exam_db'
-  host: '127.0.0.1'
+  host: '115.85.183.194'
   username: 'postgres'
   password: 'postgres'
   synchronize: true
