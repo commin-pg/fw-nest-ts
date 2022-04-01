@@ -1,17 +1,2 @@
-SELECT
-  "todo"."id" AS "todo_id",
-  "todo"."dateTitle" AS "todo_dateTitle",
-  "todo"."createAt" AS "todo_createAt",
-  "todo"."userId" AS "todo_userId",
-  "todo_item"."id" AS "todo_item_id",
-  "todo_item"."content" AS "todo_item_content",
-  "todo_item"."complete" AS "todo_item_complete",
-  "todo_item"."completeAt" AS "todo_item_completeAt",
-  "todo_item"."createAt" AS "todo_item_createAt",
-  "todo_item"."todoId" AS "todo_item_todoId"
-FROM
-  "todo" "todo"
-  LEFT JOIN "todo_item" "todo_item" ON "todo_item"."todoId" = "todo"."id"
-WHERE
-  "todo"."userId" = $ 1
-  AND "todo"."dateTitle" = $ 2
+SELECT "todo"."id" AS "todo_id", "todo"."dateTitle" AS "todo_dateTitle", "todo"."createAt" AS "todo_createAt", "todo"."userId" AS "todo_userId", "todo_todoItems"."id" AS "todo_todoItems_id", "todo_todoItems"."content" AS "todo_todoItems_content", "todo_todoItems"."complete" AS "todo_todoItems_complete", "todo_todoItems"."completeAt" AS "todo_todoItems_completeAt", "todo_todoItems"."createAt" AS "todo_todoItems_createAt", "todo_todoItems"."todoId" AS "todo_todoItems_todoId" FROM "todo" "todo" LEFT JOIN "todo_item" "todo_todoItems" ON "todo_todoItems"."todoId"="todo"."id" WHERE "todo"."id" IN (1) ORDER BY "todo"."dateTitle" DESC 
+query: SELECT COUNT(DISTINCT("todo"."id")) AS "cnt" FROM "todo" "todo" LEFT JOIN "todo_item" "todo_todoItems" ON "todo_todoItems"."todoId"="todo"."id"

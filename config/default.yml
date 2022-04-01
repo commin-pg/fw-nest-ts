@@ -6,8 +6,8 @@ db:
   port: 5432
   database: 'exam_db'
   host: '127.0.0.1'
-  username: 'root'
-  password: 'khm0813'
+  username: 'postgres'
+  password: 'postgres'
   synchronize: true
 
 jwt:
