@@ -5,17 +5,8 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
 const dbConfig = config.get('db');
 
-// const dbConfig ={
-//   type: 'postgres',
-//   port: 5432,
-//   database: 'exam_db',
-//   host: '127.0.0.1',
-//   username: 'sa',
-//   password: 'khm0813',
-//   synchronize: true
-// }
 export const typeORMConfig: TypeOrmModuleOptions = {
-  type: dbConfig.type,
+  type: process.env.RDS_TYPE || dbConfig.type,
   host: process.env.RDS_HOSTNAME || dbConfig.host,
   port: process.env.RDS_PORT || dbConfig.port,
   username: process.env.RDS_USERNAME || dbConfig.username,
@@ -26,7 +17,7 @@ export const typeORMConfig: TypeOrmModuleOptions = {
   synchronize: dbConfig.synchronize,
   migrations: [__dirname + '/migrations/*{.ts,.js}'],
   migrationsTableName: "migrations_history",
-  migrationsRun: true,
+  migrationsRun:  process.env.SYNCHRONIZE || dbConfig.synchronize,
   timezone:'Asia/Seoul',
   namingStrategy: new SnakeNamingStrategy(), 
   

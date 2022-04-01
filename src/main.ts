@@ -11,6 +11,7 @@ import { LoggingInterceptor } from './interceptors/logging.interceptor';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+
   const serverConfig = config.get('server');
   app.enableCors();
   setupSwagger(app);
