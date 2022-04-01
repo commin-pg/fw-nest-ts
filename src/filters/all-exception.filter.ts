@@ -25,6 +25,7 @@ import {
           : exception.message.message;
           
       const errorResponse = {
+        success:false,
         _statusCode: status,
         _responseTime: new Date().toISOString(),
         path: request.url,

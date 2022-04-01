@@ -124,7 +124,15 @@ export class BoardsService {
   }
 
   async getBoardById(id: number): Promise<Board> {
-    const board = await this.boardRepository.findOne({ where: { id: id } });
+    const board = await this.boardRepository
+      .createQueryBuilder('board')
+      .innerJoinAndSelect('board.createBy','user')
+      .leftJoinAndSelect('board.boardComments', 'boardComments')
+      .leftJoinAndSelect('boardComments.createBy','boardCommentUser')
+      .where('board.id = :id', { id })
+      .orderBy('boardComments.id', 'ASC')
+      .getOne();
+    // const board = await this.boardRepository.findOne({ where: { id: id }, order:{id:'ASC'} });
     if (!board) {
       throw new NotFoundException();
     }
@@ -170,19 +178,22 @@ export class BoardsService {
     return board;
   }
 
-
-  async deleteBoardComment(boardCommentId:number, user:User){
-    const result = await this.boardCommentRepository.createQueryBuilder('boardComment').where('boardComment.id = :boardCommentId and boardComment.createById = :createById',{boardCommentId,createById:user.id}).getOne().then(boardComment => {
-     
-      console.log("board Comment : : ",boardComment)
-      if(boardComment)
-      
-        return this.boardCommentRepository.delete(boardComment.id);
-      else 
-        return null;
-    })
-    console.log(result)
-    if(!result){
+  async deleteBoardComment(boardCommentId: number, user: User) {
+    const result = await this.boardCommentRepository
+      .createQueryBuilder('boardComment')
+      .where(
+        'boardComment.id = :boardCommentId and boardComment.createById = :createById',
+        { boardCommentId, createById: user.id },
+      )
+      .getOne()
+      .then((boardComment) => {
+        console.log('board Comment : : ', boardComment);
+        if (boardComment)
+          return this.boardCommentRepository.delete(boardComment.id);
+        else return null;
+      });
+    console.log(result);
+    if (!result) {
       throw new UnauthorizedException();
     }
     return result;
