@@ -77,7 +77,7 @@ export class BoardsService {
         return this.boardCommentRepository
           .createQueryBuilder('boardComment')
           .where(
-            'boardComment.boardId = :boardId and boardComment.id = :boardCommentId',
+            'boardComment.board_id = :boardId and boardComment.id = :boardCommentId',
             {
               boardId: board.id,
               boardCommentId: updateBoardCommentDTO.boardCommentId,
@@ -182,7 +182,7 @@ export class BoardsService {
     const result = await this.boardCommentRepository
       .createQueryBuilder('boardComment')
       .where(
-        'boardComment.id = :boardCommentId and boardComment.createById = :createById',
+        'boardComment.id = :boardCommentId and boardComment.create_by_id = :createById',
         { boardCommentId, createById: user.id },
       )
       .getOne()

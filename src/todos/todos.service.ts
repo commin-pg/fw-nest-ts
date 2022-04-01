@@ -1,4 +1,8 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { create } from 'domain';
 import { paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
@@ -26,7 +30,7 @@ export class TodosService {
     console.log('req', createTodo, user);
     const todo = await this.todoRepository
       .createQueryBuilder('todo')
-      .where('todo.dateTitle = :dateTitle and todo.userId = :userId', {
+      .where('todo.date_title = :dateTitle and todo.user_id = :userId', {
         dateTitle: createTodo.dateTitle,
         userId: user.id,
       })
@@ -47,7 +51,7 @@ export class TodosService {
     return await this.todoRepository
       .createQueryBuilder('todo')
       .leftJoinAndSelect('todo.todoItems', 'todo_item')
-      .where('todo.userId = :userId', { userId: user.id })
+      .where('todo.user_id = :userId', { userId: user.id })
       .orderBy('todo_item.id', 'ASC')
       .getMany();
   }
@@ -56,8 +60,8 @@ export class TodosService {
     return await this.todoRepository
       .createQueryBuilder('todo')
       .leftJoinAndSelect('todo.todoItems', 'todo_item')
-      .where('todo.userId = :userId', { userId: user.id })
-      .andWhere('todo.dateTitle = :todoTitle', { todoTitle })
+      .where('todo.user_id = :userId', { userId: user.id })
+      .andWhere('todo.date_title = :todoTitle', { todoTitle })
       .orderBy('todo_item.id', 'ASC')
       .getOne();
   }
@@ -71,7 +75,7 @@ export class TodosService {
       .createQueryBuilder('todo')
       .innerJoinAndSelect('todo.user', 'user')
       .leftJoinAndSelect('todo.todoItems', 'todo_item')
-      .where('todo.userId = :userId', { userId: user.id });
+      .where('todo.user_id = :userId', { userId: user.id });
 
     return paginate(query, quertBuilder, {
       sortableColumns: ['id', 'dateTitle', 'todoItems.createAt'],
@@ -82,6 +86,16 @@ export class TodosService {
       ],
       relations: ['todoItems'],
     });
+
+    //  return paginate(query,  this.todoRepository, {
+    //   sortableColumns: ['id', 'dateTitle', 'todoItems.createAt'],
+    //   searchableColumns: ['dateTitle'],
+    //   defaultSortBy: [
+    //     ['dateTitle', 'DESC'],
+    //     ['todoItems.createAt', 'ASC'],
+    //   ],
+    //   relations: ['todoItems'],
+    // });
   }
 
   /* TODO ITEM */
@@ -120,10 +134,8 @@ export class TodosService {
         const todoItem = new TodoItem();
         todoItem.content = updateTodo.content;
         todoItem.complete = updateTodo.complete;
-        if(updateTodo.complete)
-          todoItem.completeAt = new Date().toISOString();
-        else
-          todoItem.completeAt = null;
+        if (updateTodo.complete) todoItem.completeAt = new Date().toISOString();
+        else todoItem.completeAt = null;
         todoItem.id = updateTodo.todoItemId;
         todoItem.todo = todo;
         return this.todoItemRepository.save(todoItem);
@@ -137,8 +149,8 @@ export class TodosService {
     return todo2;
   }
 
-  async deleteTodo(deleteId:number, user:User):Promise<any>{
-    console.log(deleteId)
+  async deleteTodo(deleteId: number, user: User): Promise<any> {
+    console.log(deleteId);
     const result = await this.todoRepository
       .createQueryBuilder('board')
       .innerJoinAndSelect('board.user', 'user')
@@ -161,11 +173,11 @@ export class TodosService {
   }
 
   async deleteTodoItem(deleteId: number, user: User): Promise<any> {
-    console.log(deleteId)
+    console.log(deleteId);
     const result = await this.todoItemRepository
       .createQueryBuilder('boardComment')
       .innerJoinAndSelect('boardComment.todo', 'todo')
-      .where('boardComment.id = :boardCommentId and todo.userId = :userId', {
+      .where('boardComment.id = :boardCommentId and todo.user_id = :userId', {
         boardCommentId: deleteId,
         userId: user.id,
       })
