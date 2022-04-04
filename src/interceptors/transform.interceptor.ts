@@ -29,7 +29,9 @@ export class TransformInterceptor<T>
         const _responseTime = koreaNow;
         const _statusCode = context.switchToHttp().getResponse().statusCode;
         const payload = data;
+        const success = _statusCode >= 200  && _statusCode < 400 ? true: false;
         return {
+          success,
           _statusCode,
           _responseTime,
           data ,
