@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthController } from './auth.controller';
@@ -13,7 +13,7 @@ const jwtConfig = config.get('jwt');
 
 @Module({
   imports: [
-    PassportModule.register({defaultStrategy:'jwt'}),
+    PassportModule,
     JwtModule.register({
       secret: jwtConfig.secret,
       signOptions: {

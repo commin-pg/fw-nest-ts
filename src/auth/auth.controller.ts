@@ -1,5 +1,5 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Logger, Post, Req, Res } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { Public } from './decorator/public.decorator';
 import { AuthCredentialDTO } from './dto/auth-credential.dto';
@@ -23,5 +23,14 @@ export class AuthController {
     login(@Body() user:LoginDTO):Promise<LoginSuccessInfo>{
         console.log("login : ",user)
         return this.authService.login(user);
+    }
+
+    @ApiBearerAuth('accessToken')
+    @Post('/auth')
+    auth(@Req() req){
+        Logger.log(`Auth Check!`)
+        const { authorization } = req.headers;
+        const token = authorization.replace("Bearer ", "");
+        return this.authService.verify(token)
     }
 }
