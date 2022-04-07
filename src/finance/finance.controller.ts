@@ -7,7 +7,6 @@ import { FinanceService } from './finance.service';
 @Controller('/api/finance')
 @ApiTags('Finance API')
 @ApiBearerAuth('accessToken')
-@Public()
 export class FinanceController {
     constructor(private financeService:FinanceService){}
 
