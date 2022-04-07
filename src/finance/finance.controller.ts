@@ -4,7 +4,7 @@ import { Paginate, PaginateQuery } from 'nestjs-paginate';
 import { Public } from 'src/auth/decorator/public.decorator';
 import { FinanceService } from './finance.service';
 
-@Controller('finance')
+@Controller('/api/finance')
 @ApiTags('Finance API')
 @ApiBearerAuth('accessToken')
 @Public()
