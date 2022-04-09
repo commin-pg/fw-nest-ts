@@ -72,7 +72,7 @@ export class FinanceService {
 
       return paginate(query, financeQuery, {
         sortableColumns: ['id', 'dateKey'],
-        searchableColumns: ['compayName', 'dateKey', 'sutableType'],
+        searchableColumns: ['compayName'],
         defaultSortBy: [['dateKey', 'DESC']],
         filterableColumns: {
           sutableType: [FilterOperator.EQ]
