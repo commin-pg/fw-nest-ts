@@ -8,23 +8,24 @@ import { FinanceService } from './finance.service';
 @ApiTags('Finance API')
 @ApiBearerAuth('accessToken')
 export class FinanceController {
-    constructor(private financeService:FinanceService){}
+  constructor(private financeService: FinanceService) { }
 
-    @Public()
-    @Get()
-   async crwaling(){
-      return await this.financeService.crwalingNaver();
+  @Public()
+  @Get()
+  async crwaling() {
+    return await this.financeService.crwalingNaver();
     //  await this.financeService.test();
-    }
+  }
 
-    @Get('/all')
-    async getFinanceAll(@Req() req,@Paginate() query: PaginateQuery){
-      return await this.financeService.getFinanceAll(req.user,query);
-    }
+  @Public()
+  @Get('/all')
+  async getFinanceAll(@Req() req, @Paginate() query: PaginateQuery) {
+    return await this.financeService.getFinanceAll(req.user, query);
+  }
 
-    @Get('/getCurrentDateKey')
-    async getCurrentDateKey(){
-      return await this.financeService.getCurrentDateKey();
-    }
-    
+  @Get('/getCurrentDateKey')
+  async getCurrentDateKey() {
+    return await this.financeService.getCurrentDateKey();
+  }
+
 }

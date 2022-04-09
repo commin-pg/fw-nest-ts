@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
+import { FilterOperator, paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 import { User } from 'src/auth/entity/user.entity';
 import { Repository } from 'typeorm';
 import { Finance } from './entity/finance.entity';
@@ -18,12 +18,12 @@ export const FINANCE_BASE_TABLE_URL: string =
 
 @Injectable()
 export class FinanceService {
- 
+
 
   constructor(
     @InjectRepository(Finance) private financeRepository: Repository<Finance>,
     private financeFunc: FinanceFunc,
-  ) {}
+  ) { }
 
   async test() {
     const model: Finance = new Finance();
@@ -44,35 +44,45 @@ export class FinanceService {
   //   });
   // }
 
-  async getCurrentDateKey():Promise<Finance> {
-    const result= await this.financeRepository
-    .createQueryBuilder('finance')
-    .select('finance.date_key','dateKey')
-    .groupBy('finance.date_key')
-    .orderBy('finance.date_key', 'DESC').getRawOne();
+  async getCurrentDateKey(): Promise<Finance> {
+    const result = await this.financeRepository
+      .createQueryBuilder('finance')
+      .select('finance.date_key', 'dateKey')
+      .groupBy('finance.date_key')
+      .orderBy('finance.date_key', 'DESC').getRawOne();
     return result;
   }
 
 
-  async getFinanceAll(user:User,query: PaginateQuery): Promise<Paginated<Finance>> {
+  async getFinanceAll(user: User, query: PaginateQuery): Promise<Paginated<Finance>> {
     const dateKeyQuery = await this.financeRepository
-    .createQueryBuilder('finance')
-    .select('finance.date_key','dateKey')
-    .groupBy('finance.date_key')
-    .orderBy('finance.date_key', 'DESC')
+      .createQueryBuilder('finance')
+      .select('finance.date_key', 'dateKey')
+      .groupBy('finance.date_key')
+      .orderBy('finance.date_key', 'DESC')
+      .getRawOne();
 
-    const financeQuery= await this.financeRepository
-    .createQueryBuilder('finance')
-    .where('finance.date_key IN (' +dateKeyQuery.getQuery() + ')')
-    .orderBy('finance.date_key', 'DESC');
+    return this.getCurrentDateKey().then(res => {
+      console.log(res)
+      const financeQuery = this.financeRepository
+        .createQueryBuilder('finance')
+        .where('finance.date_key = :dateKey', { dateKey: res.dateKey })
+        .orderBy('finance.id', 'ASC')
+        .orderBy('finance.date_key', 'DESC')
 
+      return paginate(query, financeQuery, {
+        sortableColumns: ['id', 'dateKey'],
+        searchableColumns: ['compayName', 'dateKey', 'sutableType'],
+        defaultSortBy: [['dateKey', 'DESC']],
+        filterableColumns: {
+          sutableType: [FilterOperator.EQ]
+        }
+        // relations: ['createBy'],
+      });
+    }).catch(e => {
+      throw e;
+    })
 
-    return paginate(query, financeQuery , {
-      sortableColumns: ['id', 'dateKey'],
-      searchableColumns: ['compayName','dateKey'],
-      defaultSortBy: [['dateKey', 'DESC']],
-      // relations: ['createBy'],
-    });
   }
 
   async crwalingNaver() {
