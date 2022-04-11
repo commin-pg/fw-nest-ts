@@ -1,9 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FilterOperator, paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 import { User } from 'src/auth/entity/user.entity';
 import { Repository } from 'typeorm';
+import { UpdateProgressDTO } from './dto/update-progress.dto';
 import { Finance } from './entity/finance.entity';
+import { FinanceCrawlingProgress, ProgressType } from './entity/finance_crawling_progress.entity';
 import { FinanceDelete } from './entity/finance_delete.entity';
 import { FinanceFunc } from './finance.func';
 import { formatYMD } from './finance.util';
@@ -24,6 +26,7 @@ export class FinanceService {
   constructor(
     @InjectRepository(Finance) private financeRepository: Repository<Finance>,
     @InjectRepository(FinanceDelete) private financeDeleteRepository: Repository<FinanceDelete>,
+    @InjectRepository(FinanceCrawlingProgress) private financeCrawlingProgressRepository: Repository<FinanceCrawlingProgress>,
     private financeFunc: FinanceFunc,
   ) { }
 
@@ -165,6 +168,60 @@ export class FinanceService {
       .where('financeDelete.user_id = :userId', { userId: user.id })
       .orderBy('financeDelete.reg_date')
       .getMany()
+      .catch(e => {
+        throw e;
+      })
+  }
+
+  async getFinanceProgress(user: User) {
+    return await this.financeCrawlingProgressRepository.createQueryBuilder('FinanceCrawlingProgress')
+      .select()
+      .where('FinanceCrawlingProgress.user_id = :userId', { userId: user.id })
+      .getOne()
+      .then(result => {
+        if (result) {
+          return result;
+        } else {
+          return this.financeCrawlingProgressRepository.save({
+            process: 0,
+            progressType: ProgressType.NONE,
+            user: user
+          })
+
+        }
+      })
+      .catch(e => {
+        throw e
+      })
+  }
+
+  async setFinanceProgress(user: User, updateProgressDTO: UpdateProgressDTO) {
+    const { process, progressType } = updateProgressDTO;
+    return await this.financeCrawlingProgressRepository.createQueryBuilder('FinanceCrawlingProgress')
+      .select()
+      .where('FinanceCrawlingProgress.user_id = :userId', { userId: user.id })
+      .getOne()
+      .then(result => {
+
+        if (result) {
+
+          this.financeCrawlingProgressRepository.createQueryBuilder('FinanceCrawlingProgress')
+          .update()
+          .set(
+            {
+              process: progressType === ProgressType.COMPLETE? 100: process,
+              progressType: progressType,
+            }
+          )
+          .where("user_id = :userId", { userId: user.id })
+          .execute()
+
+          return this.getFinanceProgress(user);
+        
+        } else {
+          throw new ConflictException('Progress Data Empty..');
+        }
+      })
       .catch(e => {
         throw e;
       })

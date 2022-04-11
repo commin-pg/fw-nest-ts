@@ -1,7 +1,8 @@
-import { Controller, Delete, Get, Param, Post, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Paginate, PaginateQuery } from 'nestjs-paginate';
 import { Public } from 'src/auth/decorator/public.decorator';
+import { UpdateProgressDTO } from './dto/update-progress.dto';
 import { FinanceService } from './finance.service';
 
 @Controller('/api/finance')
@@ -42,4 +43,14 @@ export class FinanceController {
     return await this.financeService.financeDeletedList(req.user);
   }
 
+
+  @Get('/progress')
+  async getFinanceProgress(@Req() req) {
+    return await this.financeService.getFinanceProgress(req.user);
+  }
+
+  @Put('/progress')
+  async setFinanceProgress(@Req() req, @Body() updateProgressDTO: UpdateProgressDTO) {
+    return await this.financeService.setFinanceProgress(req.user,updateProgressDTO);
+  }
 }

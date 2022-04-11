@@ -6,7 +6,7 @@ import { Finance } from "src/finance/entity/finance.entity";
 import { FinanceCrawlingProgress } from "src/finance/entity/finance_crawling_progress.entity";
 import { FinanceDelete } from "src/finance/entity/finance_delete.entity";
 import { Todo } from "src/todos/entitiy/todo.entity";
-import { BaseEntity, Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
+import { BaseEntity, Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
 
 @Entity()
 @Unique(['userId'])
