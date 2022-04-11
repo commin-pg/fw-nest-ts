@@ -9,11 +9,13 @@ import {
 } from './finance.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { commaReplace, formatYMD } from './finance.util';
+import { User } from 'src/auth/entity/user.entity';
+import { FinanceDelete } from './entity/finance_delete.entity';
 
 
 @Injectable()
 export class FinanceFunc {
-  constructor() {}
+  constructor() { }
 
   async sutableCheck(model: Finance) {
     // * 1. PER 15 이하 (단, 0보다 커야함)
@@ -270,18 +272,12 @@ export class FinanceFunc {
     // console.log(model);
   }
 
-  async crwaling(): Promise<Finance[]> {
+  async crwaling(user: User, deletedCompanyNameList: string[]): Promise<Finance[]> {
     const financeResultList: Finance[] = [];
 
     for (var i = 0; i < 2; i++) {
       for (var idx = 1; idx < 50; idx++) {
-        const BASE_URL =
-          FINANCE_BASE_TABLE_URL +
-          '?sosok=' +
-          (i === 0 ? FinanceType.KOSPI : FinanceType.KOSDAQ) +
-          '&page=' +
-          idx;
-
+        const BASE_URL = FINANCE_BASE_TABLE_URL + '?sosok=' + (i === 0 ? FinanceType.KOSPI : FinanceType.KOSDAQ) + '&page=' + idx;
         await axios
           .get(BASE_URL, {
             responseType: 'arraybuffer',
@@ -301,46 +297,53 @@ export class FinanceFunc {
                   result.compayFinanceDetailUrl =
                     FINANCE_BASE_URL + cheerio.load(ele)('td > a').attr('href');
                   result.compayName = cheerio.load(ele)('td > a').text();
-
-                  cheerio
-                    .load(ele)('td.number')
-                    .map((index2, ele2) => {
-                      if (ele2.type === 'tag') {
-                        switch (index2) {
-                          case 0: // 현재가
-                            result.currentFinancePrice = Number(
-                              commaReplace(ele2.firstChild.data),
-                            );
-                            break;
-                          case 3: // 액면가
-                            result.facePrice = Number(
-                              commaReplace(ele2.firstChild.data),
-                            );
-                            break;
-                          case 4: // 시가총액
-                            result.totalMarketCap = Number(
-                              commaReplace(ele2.firstChild.data),
-                            );
-                            break;
-                          case 5: // 상장주식수
-                            result.sharesNumber = Number(
-                              commaReplace(ele2.firstChild.data),
-                            );
-                            break;
-                          case 7: // 거래량
-                            result.tradeAmount = Number(
-                              commaReplace(ele2.firstChild.data),
-                            );
-                            break;
-                          case 8: // PER
-                            result.perRate = Number(ele2.firstChild.data);
-                            break;
+                  if (deletedCompanyNameList.includes(result.compayName)) {
+                    Logger.log(`[${result.compayName}] 은 제외된 종목입니다.`)
+                  } else {
+                    cheerio
+                      .load(ele)('td.number')
+                      .map((index2, ele2) => {
+                        if (ele2.type === 'tag') {
+                          switch (index2) {
+                            case 0: // 현재가
+                              result.currentFinancePrice = Number(
+                                commaReplace(ele2.firstChild.data),
+                              );
+                              break;
+                            case 3: // 액면가
+                              result.facePrice = Number(
+                                commaReplace(ele2.firstChild.data),
+                              );
+                              break;
+                            case 4: // 시가총액
+                              result.totalMarketCap = Number(
+                                commaReplace(ele2.firstChild.data),
+                              );
+                              break;
+                            case 5: // 상장주식수
+                              result.sharesNumber = Number(
+                                commaReplace(ele2.firstChild.data),
+                              );
+                              break;
+                            case 7: // 거래량
+                              result.tradeAmount = Number(
+                                commaReplace(ele2.firstChild.data),
+                              );
+                              break;
+                            case 8: // PER
+                              result.perRate = Number(ele2.firstChild.data);
+                              break;
+                          }
                         }
+                      });
+                    this.sutableCheck(result).then((model) => {
+
+                      if (model) {
+                        model.user = user;
+                        financeResultList.push(model);
                       }
                     });
-                  this.sutableCheck(result).then((model) => {
-                    if (model) financeResultList.push(model);
-                  });
+                  }
                 }
               });
           });

@@ -1,5 +1,6 @@
 import { IsEnum } from 'class-validator';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { User } from 'src/auth/entity/user.entity';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { FinanceType } from '../finance.service';
 
 // case "CASH_LESS":
@@ -26,15 +27,15 @@ import { FinanceType } from '../finance.service';
 // 					case "OTHER":
 // 						otherModelList.add(model_);
 export enum SutableType {
-  SUTABLE='SUTABLE',
-  CASH_LESS='CASH_LESS',
-  DEPT_LESS='DEPT_LESS',
-  SHARE_LESS='SHARE_LESS',
-  PER_LESS='PER_LESS',
-  PBR_LESS='PBR_LESS',
-  PSR_LESS='PSR_LESS',
-  PROFIT_LESS='PROFIT_LESS',
-  OTHER='OTHER',
+  SUTABLE = 'SUTABLE',
+  CASH_LESS = 'CASH_LESS',
+  DEPT_LESS = 'DEPT_LESS',
+  SHARE_LESS = 'SHARE_LESS',
+  PER_LESS = 'PER_LESS',
+  PBR_LESS = 'PBR_LESS',
+  PSR_LESS = 'PSR_LESS',
+  PROFIT_LESS = 'PROFIT_LESS',
+  OTHER = 'OTHER',
 }
 
 @Entity()
@@ -53,8 +54,8 @@ export class Finance {
   @Column({ type: 'varchar', nullable: false, primary: true })
   compayName: string;
 
-  @Column({type:'int'})
-  public rank:number;
+  @Column({ type: 'int' })
+  public rank: number;
 
   @Column({ type: 'varchar' })
   compayFinanceDetailUrl: string;
@@ -74,10 +75,10 @@ export class Finance {
   @Column({ type: 'decimal', nullable: false })
   pbrRate: number;
 
-  @Column({ type: 'decimal', nullable: false, array:true })
+  @Column({ type: 'decimal', nullable: false, array: true })
   yearSales: number[];
-  @Column({ type: 'decimal', nullable: false, array:true })
-  currentQuarterSales:number[];
+  @Column({ type: 'decimal', nullable: false, array: true })
+  currentQuarterSales: number[];
 
   @Column({ type: 'decimal', nullable: false })
   saleProfitRate: number;
@@ -88,7 +89,7 @@ export class Finance {
   @Column({ type: 'decimal', nullable: false })
   psrRate: number;
   @Column({ type: 'decimal', nullable: false })
-  cashRate:number;
+  cashRate: number;
 
   @IsEnum(SutableType)
   @Column({
@@ -104,4 +105,8 @@ export class Finance {
     nullable: false,
   })
   financeType: string;
+
+
+  @ManyToOne((type) => User, (user) => user.finances, { eager: true })
+  user: User;
 }

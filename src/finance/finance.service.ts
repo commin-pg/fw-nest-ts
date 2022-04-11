@@ -4,6 +4,7 @@ import { FilterOperator, paginate, Paginated, PaginateQuery } from 'nestjs-pagin
 import { User } from 'src/auth/entity/user.entity';
 import { Repository } from 'typeorm';
 import { Finance } from './entity/finance.entity';
+import { FinanceDelete } from './entity/finance_delete.entity';
 import { FinanceFunc } from './finance.func';
 import { formatYMD } from './finance.util';
 
@@ -22,6 +23,7 @@ export class FinanceService {
 
   constructor(
     @InjectRepository(Finance) private financeRepository: Repository<Finance>,
+    @InjectRepository(FinanceDelete) private financeDeleteRepository: Repository<FinanceDelete>,
     private financeFunc: FinanceFunc,
   ) { }
 
@@ -44,10 +46,11 @@ export class FinanceService {
   //   });
   // }
 
-  async getCurrentDateKey(): Promise<Finance> {
+  async getCurrentDateKey(user: User): Promise<Finance> {
     const result = await this.financeRepository
       .createQueryBuilder('finance')
       .select('finance.date_key', 'dateKey')
+      .where('finance.user_id = :userId', { userId: user.id })
       .groupBy('finance.date_key')
       .orderBy('finance.date_key', 'DESC').getRawOne();
     return result;
@@ -55,18 +58,18 @@ export class FinanceService {
 
 
   async getFinanceAll(user: User, query: PaginateQuery): Promise<Paginated<Finance>> {
-    const dateKeyQuery = await this.financeRepository
-      .createQueryBuilder('finance')
-      .select('finance.date_key', 'dateKey')
-      .groupBy('finance.date_key')
-      .orderBy('finance.date_key', 'DESC')
-      .getRawOne();
+    // const dateKeyQuery = await this.financeRepository
+    //   .createQueryBuilder('finance')
+    //   .select('finance.date_key', 'dateKey')
+    //   .groupBy('finance.date_key')
+    //   .orderBy('finance.date_key', 'DESC')
+    //   .getRawOne();
 
-    return this.getCurrentDateKey().then(res => {
+    return this.getCurrentDateKey(user).then(res => {
       console.log(res)
       const financeQuery = this.financeRepository
         .createQueryBuilder('finance')
-        .where('finance.date_key = :dateKey', { dateKey: res.dateKey })
+        .where('finance.user_id = :userId', { userId: user.id })
         .orderBy('finance.id', 'ASC')
         .orderBy('finance.date_key', 'DESC')
 
@@ -85,26 +88,85 @@ export class FinanceService {
 
   }
 
-  async crwalingNaver() {
-    return await this.financeFunc
-      .crwaling()
-      .then((result) => {
-        return this.financeRepository
-          .delete({ dateKey: formatYMD(new Date()) })
-          .then((delResult) => {
-            console.log(delResult);
-            this.financeRepository.save(result);
-            return {
-              resultCnt: result.length,
-            };
-          })
-          .catch((e) => console.log(e));
+  async crwalingNaver(user: User) {
+    return this.financeDeletedList(user).then(deleteList => {
+      const delList: string[] = deleteList.map(deletedCompanyNameList => deletedCompanyNameList.compayName);
+      return this.financeFunc
+        .crwaling(user, delList)
+        .then((result) => {
+          return this.financeRepository
+            .createQueryBuilder('finance')
+            .delete()
+            .where('user_id = :userId', { userId: user.id })
+            .execute()
+            .then((delResult) => {
+              console.log(delResult);
+              this.financeRepository.save(result);
+              return {
+                resultCnt: result.length,
+              };
+            })
+            .catch((e) => console.log(e));
+        })
+        .catch((e) => {
+          console.log(e);
+          return {
+            resultCnt: 0,
+          };
+        });
+    })
+
+  }
+
+  async financeDelete(user: User, financeId: number) {
+    return this.financeRepository
+      .createQueryBuilder('finance')
+      .select()
+      .where('finance.id = :financeId', { financeId })
+      .getOne()
+      .then(result => {
+        return this.financeDeleteRepository.save(
+          {
+            compayName: result.compayName,
+            compayFinanceDetailUrl: result.compayFinanceDetailUrl,
+            financeType: result.financeType,
+            user
+          }
+        ).then(res => {
+          return this.financeRepository
+            .createQueryBuilder('finance')
+            .delete()
+            .where('finance.id = :financeId', { financeId })
+            .execute()
+            .catch(e => {
+              throw e;
+            })
+        }).catch(e => {
+          throw e;
+        })
+      }).catch(e => {
+        throw e;
       })
-      .catch((e) => {
-        console.log(e);
-        return {
-          resultCnt: 0,
-        };
-      });
+  }
+
+  async financeRestore(user: User, financeDeleteId: number) {
+    return this.financeDeleteRepository
+      .createQueryBuilder('financeDelete')
+      .delete()
+      .where('id = :financeDelId and user_id = :userId', { financeDelId: financeDeleteId, userId: user.id })
+      .execute()
+      .catch(e => { throw e })
+  }
+
+  async financeDeletedList(user: User): Promise<FinanceDelete[]> {
+    return this.financeDeleteRepository
+      .createQueryBuilder('financeDelete')
+      .select()
+      .where('financeDelete.user_id = :userId', { userId: user.id })
+      .orderBy('financeDelete.reg_date')
+      .getMany()
+      .catch(e => {
+        throw e;
+      })
   }
 }

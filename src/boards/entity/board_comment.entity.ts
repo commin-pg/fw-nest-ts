@@ -26,12 +26,12 @@ export class BoardComment extends BaseEntity {
   @Column({ nullable: true })
   modifyAt: string;
 
-  @Column({ nullable: true, type:'varchar'})
+  @Column({ nullable: true, type: 'varchar' })
   modifyBy: string;
 
   @ManyToOne((type) => User, (user) => user.boardComments, { eager: true })
   createBy: User;
 
-  @ManyToOne((type) => Board, (board) => board.boardComments, { eager: false , onDelete: 'CASCADE' })
+  @ManyToOne((type) => Board, (board) => board.boardComments, { eager: false, onDelete: 'CASCADE' })
   board: Board;
 }
