@@ -205,7 +205,7 @@ export class FinanceService {
 
         if (result) {
 
-          this.financeCrawlingProgressRepository.createQueryBuilder('FinanceCrawlingProgress')
+          return this.financeCrawlingProgressRepository.createQueryBuilder('FinanceCrawlingProgress')
           .update()
           .set(
             {
@@ -215,8 +215,14 @@ export class FinanceService {
           )
           .where("user_id = :userId", { userId: user.id })
           .execute()
+          .then(result => {
+            return this.getFinanceProgress(user);
+          })
+          .catch(e => {
+            throw e;
+          })
 
-          return this.getFinanceProgress(user);
+          
         
         } else {
           throw new ConflictException('Progress Data Empty..');
