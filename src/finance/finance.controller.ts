@@ -1,7 +1,6 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Paginate, PaginateQuery } from 'nestjs-paginate';
-import { Public } from 'src/auth/decorator/public.decorator';
 import { UpdateProgressDTO } from './dto/update-progress.dto';
 import { FinanceService } from './finance.service';
 

@@ -1,4 +1,5 @@
-import { Body, Controller, Logger, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { Public } from './decorator/public.decorator';
@@ -6,31 +7,42 @@ import { AuthCredentialDTO } from './dto/auth-credential.dto';
 import { LoginDTO } from './dto/login.dto';
 import { LoginSuccessInfo } from './dto/login.success.info';
 import { User } from './entity/user.entity';
+import { JwtAuthGuard } from './jwt.auth.guard';
+import { LocalAuthGuard } from './local.auth.guard';
 
 @Controller('/api/auth')
 @ApiTags("인증 API")
 export class AuthController {
-    constructor(private authService:AuthService){}
+    constructor(private authService: AuthService) { }
 
     @Public()
     @Post('/join')
-    createUser(@Body() user:AuthCredentialDTO):Promise<User>{
+    createUser(@Body() user: AuthCredentialDTO): Promise<User> {
         return this.authService.createUser(user);
     }
-    
+
     @Public()
     @Post('/login')
-    login(@Body() user:LoginDTO):Promise<LoginSuccessInfo>{
-        console.log("login : ",user)
-        return this.authService.login(user);
+    @UseGuards(LocalAuthGuard)
+    login(@Req() req, @Body() loginData: LoginDTO): Promise<LoginSuccessInfo> {
+        console.log("login : ", req.user)
+        return this.authService.login(req.user);
     }
 
     @ApiBearerAuth('accessToken')
     @Post('/auth')
-    auth(@Req() req){
+    auth(@Req() req) {
         Logger.log(`Auth Check!`)
         const { authorization } = req.headers;
         const token = authorization.replace("Bearer ", "");
         return this.authService.verify(token)
+    }
+
+    @ApiBearerAuth('accessToken')
+    @Public()
+    @Get('/profile')
+    getProfile(@Req() req){
+        console.log("Profile", req)
+        return req.user;
     }
 }

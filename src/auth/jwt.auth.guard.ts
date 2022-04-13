@@ -10,12 +10,13 @@ import { AuthGuard } from '@nestjs/passport';
 import { Observable } from 'rxjs';
 import { IS_PUBLIC_KEY } from './decorator/public.decorator';
 import * as config from 'config'
+import { AuthService } from './auth.service';
 const jwtConfig = config.get('jwt');
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
   constructor(
-    private jwtService: JwtService,
+    private authService: AuthService,
     private reflector: Reflector
   ) {
     super();
@@ -34,40 +35,32 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     }
     const request = context.switchToHttp().getRequest();
 
+    // console.log(this.authService)
+
     const { authorization } = request.headers;
 
     if (authorization === undefined)
       throw new HttpException("Token이 없습니다.", HttpStatus.UNAUTHORIZED);
 
-    const token = authorization.replace('Bearer', "")
-    request.user = this.verify(token);
-    return true;
+    const token = authorization.replace("Bearer ", "");
+    return this.authService.verify(token).then(result => {
+      console.log("AuthGuard Result User:", result);
+      request.user = result;
+      return true;
+    }).catch(e => {
+      console.log("AuthGuard Result User ERRR:", e);
+      throw e
+    })
+
+
+    // if(request.user){
+
+    // }else{
+    //   throw new HttpException("Token이 없습니다2.", HttpStatus.UNAUTHORIZED);
+    // }
+
+    // return true;
+
     // return super.canActivate(context);
   }
-
-
-  async verify(token: string) {
-    try {
-      const result = this.jwtService.verify(token, { secret: jwtConfig.secret })
-      console.log(result)
-      return result;
-    } catch (e) {
-      console.log(e);
-      switch (e.message) {
-        // 토큰에 대한 오류를 판단합니다.
-        case 'INVALID_TOKEN':
-        case 'TOKEN_IS_ARRAY':
-        case 'NO_USER':
-          throw new HttpException('유효하지 않은 토큰입니다.', 401);
-
-        case 'EXPIRED_TOKEN':
-        case 'jwt expired':
-          throw new HttpException('토큰이 만료되었습니다.', 410);
-
-        default:
-          throw new HttpException('서버 오류입니다.', 500);
-      }
-    }
-  }
-
 }

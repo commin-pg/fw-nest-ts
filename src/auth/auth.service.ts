@@ -22,7 +22,7 @@ export class AuthService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
     private jwtService: JwtService,
-  ) {}
+  ) { }
 
   async createUser(user: AuthCredentialDTO) {
     try {
@@ -42,12 +42,10 @@ export class AuthService {
     }
   }
 
-  async login(userData: LoginDTO): Promise<LoginSuccessInfo> {
-    const { userId, password } = userData;
+
+  async validateUser(userId: string, pass: string): Promise<any> {
+    console.log("validateUser : ", userId, pass)
     const query = this.userRepository.createQueryBuilder('user');
-
-    console.log(userData);
-
     const user = await query
       .select([
         'user.id as id',
@@ -57,49 +55,46 @@ export class AuthService {
       ])
       .where('user.userId = :userId', { userId })
       .getRawOne();
-    console.log('login query result = ', user);
 
-    // const user = await this.userRepository.findOne({
-    //   where: { userId: userId },
-    // });
-
-    const ss = await bcrypt.compare(password, user.password);
-    if (ss) {
-      // 유저 토큰 생성
-      const payload = { id: user.id, userId: userId };
-      const accessToken = await _createAccessToken(this.jwtService, payload);
-      const refPayload = { userId: userId };
-      const refreshToken = await _createRefreshToken(
-        this.jwtService,
-        refPayload,
-      );
-
-      // const resultUserData:resultUser = {
-      //   id:user.id,
-      //   userId:user.userId,
-      //   username:user.username
-      // }
-      const { id, username } = user;
-
-      const result: LoginSuccessInfo = {
-        accessToken: undefined,
-        refreshToken: undefined,
-        userData: { id, username, userId },
-      };
-
-      result.accessToken = accessToken;
-      result.refreshToken = refreshToken;
-
-      return result;
-    } else {
-      throw new UnauthorizedException('login fail');
+    if(user){
+      const ss = await bcrypt.compare(pass, user.password);
+      if (ss) {
+        const { password, ...result } = user;
+        return result;
+      } else {
+        return null;
+      }
+    }else{
+      return null;
     }
   }
 
-  async verify(token){
+  async login(userData: any): Promise<LoginSuccessInfo> {
+    // 유저 토큰 생성
+    const payload = { id: userData.id, userId:userData.userId ,username:userData.username};
+    const accessToken = await _createAccessToken(this.jwtService, payload);
+    const refPayload = { userId:userData.userId  };
+    const refreshToken = await _createRefreshToken(
+      this.jwtService,
+      refPayload,
+    );
+
+    const result: LoginSuccessInfo = {
+      accessToken: undefined,
+      refreshToken: undefined,
+      userData
+    };
+
+    result.accessToken = accessToken;
+    result.refreshToken = refreshToken;
+
+    return result;
+  }
+
+  async verify(token) {
     try {
-      const result = this.jwtService.verify(token,  { secret:jwtConfig.secret })
-      console.log(result)
+      const result = this.jwtService.verify(token, { secret: jwtConfig.secret })
+      console.log("Verify! " ,result)
       return result;
     } catch (e) {
       console.log(e);
