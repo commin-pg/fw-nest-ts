@@ -44,6 +44,23 @@ export class FinanceController {
   }
 
 
+  @Get('/candidateList')
+  async financeCandidateList(@Req() req) {
+    return await this.financeService.financeCandidateList(req.user);
+  }
+
+  @Post('/addCandidate/:financeId')
+  async financeAddCandidate(@Req() req, @Param('financeId') financeId: number) {
+    return await this.financeService.financeAddCandidate(req.user, financeId);
+  }
+
+  @Post('/removeCandidate/:companyName')
+  async financeRemoveCandidate(@Req() req, @Param('candidateId') companyName: string) {
+    return await this.financeService.financeRemoveCandidate(req.user, companyName);
+  }
+
+
+
   @Get('/progress')
   async getFinanceProgress(@Req() req) {
     return await this.financeService.getFinanceProgress(req.user);
@@ -51,6 +68,6 @@ export class FinanceController {
 
   @Put('/progress')
   async setFinanceProgress(@Req() req, @Body() updateProgressDTO: UpdateProgressDTO) {
-    return await this.financeService.setFinanceProgress(req.user,updateProgressDTO);
+    return await this.financeService.setFinanceProgress(req.user, updateProgressDTO);
   }
 }

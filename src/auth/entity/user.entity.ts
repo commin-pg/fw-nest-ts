@@ -3,6 +3,7 @@ import { Board } from "src/boards/entity/board.entity";
 import { BoardComment } from "src/boards/entity/board_comment.entity";
 
 import { Finance } from "src/finance/entity/finance.entity";
+import { FinanceCandidate } from "src/finance/entity/finance_candidate.entity";
 import { FinanceCrawlingProgress } from "src/finance/entity/finance_crawling_progress.entity";
 import { FinanceDelete } from "src/finance/entity/finance_delete.entity";
 import { Todo } from "src/todos/entitiy/todo.entity";
@@ -42,6 +43,9 @@ export class User extends BaseEntity {
 
     @OneToMany(type => FinanceDelete, financeDelete => financeDelete.user, { eager: false })
     financeDeletes: FinanceDelete[]
+
+    @OneToMany(type => FinanceCandidate, financeCandidate => financeCandidate.user, { eager: false })
+    financeCandidates: FinanceCandidate[]
 
 
     @OneToOne(type => FinanceCrawlingProgress, financeCrawling => financeCrawling.user, { eager: false })

@@ -3,8 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { FilterOperator, paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 import { User } from 'src/auth/entity/user.entity';
 import { Repository } from 'typeorm';
+import { compileFunction } from 'vm';
 import { UpdateProgressDTO } from './dto/update-progress.dto';
 import { Finance } from './entity/finance.entity';
+import { FinanceCandidate } from './entity/finance_candidate.entity';
 import { FinanceCrawlingProgress, ProgressType } from './entity/finance_crawling_progress.entity';
 import { FinanceDelete } from './entity/finance_delete.entity';
 import { FinanceFunc } from './finance.func';
@@ -26,6 +28,7 @@ export class FinanceService {
   constructor(
     @InjectRepository(Finance) private financeRepository: Repository<Finance>,
     @InjectRepository(FinanceDelete) private financeDeleteRepository: Repository<FinanceDelete>,
+    @InjectRepository(FinanceCandidate) private financeCandidateRepository: Repository<FinanceCandidate>,
     @InjectRepository(FinanceCrawlingProgress) private financeCrawlingProgressRepository: Repository<FinanceCrawlingProgress>,
     private financeFunc: FinanceFunc,
   ) { }
@@ -74,16 +77,16 @@ export class FinanceService {
         .createQueryBuilder('finance')
         .where('finance.user_id = :userId', { userId: user.id })
         .orderBy('finance.id', 'ASC')
-        .orderBy('finance.date_key', 'DESC')
+      // .orderBy('finance.date_key', 'DESC')
 
       return paginate(query, financeQuery, {
         sortableColumns: ['id', 'dateKey'],
         searchableColumns: ['compayName'],
-        defaultSortBy: [['dateKey', 'DESC']],
+        // defaultSortBy: [['dateKey', 'DESC']],
         filterableColumns: {
           sutableType: [FilterOperator.EQ]
-        }
-        // relations: ['createBy'],
+        },
+        // relations: ['candidate'],
       });
     }).catch(e => {
       throw e;
@@ -91,32 +94,64 @@ export class FinanceService {
 
   }
 
-  async crwalingNaver(user: User) {
-    return this.financeDeletedList(user).then(deleteList => {
-      const delList: string[] = deleteList.map(deletedCompanyNameList => deletedCompanyNameList.compayName);
-      return this.financeFunc
-        .crwaling(user, delList)
-        .then((result) => {
-          return this.financeRepository
-            .createQueryBuilder('finance')
-            .delete()
-            .where('user_id = :userId', { userId: user.id })
-            .execute()
-            .then((delResult) => {
-              console.log(delResult);
-              this.financeRepository.save(result);
-              return {
-                resultCnt: result.length,
-              };
-            })
-            .catch((e) => console.log(e));
+  async progressCb(processRate: number, progressType: ProgressType, user: User) {
+    console.log("asdkasndlksajdklasjdlkasasdnaslkfjdklsfjdkslfjlkdsjflkdsjaflkdjflksjd", processRate, progressType, this.getFinanceProgress)
+    try {
+      return await this.getFinanceProgress(user).then(result => {
+        const req: UpdateProgressDTO = new UpdateProgressDTO();
+        req.process = processRate;
+        req.progressType = progressType;
+        return this.setFinanceProgress(user, req).then(
+          (res) => {
+            return res;
+          }
+        ).catch(e => {
+          throw e;
         })
-        .catch((e) => {
-          console.log(e);
-          return {
-            resultCnt: 0,
-          };
-        });
+      }).catch(e => {
+        throw e;
+      })
+    } catch (error) {
+      console.log(error)
+    }
+
+  }
+
+  async crwalingNaver(user: User) {
+    return await this.financeDeletedList(user).then(deleteList => {
+      const delList: string[] = deleteList.map(deletedCompanyNameList => deletedCompanyNameList.compayName);
+      this.getFinanceProgress(user).then(item => {
+        this.setFinanceProgress(user, { process: 1, progressType: ProgressType.PROCESSING }).then(process => {
+          return this.financeFunc
+            .crwaling(user, delList)
+            .then((result) => {
+              return this.financeRepository
+                .createQueryBuilder('finance')
+                .delete()
+                .where('user_id = :userId', { userId: user.id })
+                .execute()
+                .then((delResult) => {
+                  console.log(delResult);
+                  this.financeRepository.save(result);
+                  this.setFinanceProgress(user, { process: 100, progressType: ProgressType.COMPLETE })
+                  return {
+                    resultCnt: result.length,
+                  };
+                })
+                .catch((e) => console.log(e));
+            })
+            .catch((e) => {
+              console.log(e);
+              return {
+                resultCnt: 0,
+              };
+            });
+        })
+      }).catch(e => {
+        throw e;
+      })
+    }).catch(e => {
+      throw e;
     })
 
   }
@@ -173,6 +208,68 @@ export class FinanceService {
       })
   }
 
+  async financeCandidateList(user: User): Promise<FinanceCandidate[]> {
+    return this.financeCandidateRepository
+      .createQueryBuilder('financeCandidate')
+      .select()
+      .where('financeCandidate.user_id = :userId', { userId: user.id })
+      .getMany()
+      .catch(e => {
+        throw e;
+      })
+  }
+
+  async financeRemoveCandidate(user: User, candidateCompanyName: string) {
+
+    return this.financeCandidateRepository.findOneBy({
+      compayName: candidateCompanyName
+    }).then(candidate => {
+      if (candidate) {
+        return this.financeCandidateRepository.createQueryBuilder('candidate')
+          .delete()
+          .where('id = :candidateId', { candidateId: candidate.id })
+          .execute()
+          .catch(e => {
+            throw e;
+          })
+      } else {
+        throw new ConflictException('후보 주식 정보가 없습니다.')
+      }
+    })
+
+  }
+
+  async financeAddCandidate(user: User, financeId: number) {
+    return this.financeRepository.createQueryBuilder('finance')
+      .select()
+      .where('finance.user_id = :userId and id = :financeId', { userId: user.id, financeId: financeId })
+      .getOne()
+      .then(finance => {
+
+        if (finance) {
+          this.financeCandidateRepository.findOneBy({
+            compayName: finance.compayName
+          }).then(candidate => {
+            if (candidate) {
+              throw new ConflictException('이미 후보에 있는 종목입니다.')
+            } else {
+              return this.financeCandidateRepository.save({
+                compayName: finance.compayName,
+                compayFinanceDetailUrl: finance.compayFinanceDetailUrl,
+                financeType: finance.financeType,
+                user
+              })
+            }
+          })
+
+        } else {
+          throw new ConflictException('주식정보가 없습니다.')
+        }
+      }).catch(e => {
+        throw e;
+      })
+  }
+
   async getFinanceProgress(user: User) {
     return await this.financeCrawlingProgressRepository.createQueryBuilder('FinanceCrawlingProgress')
       .select()
@@ -206,24 +303,24 @@ export class FinanceService {
         if (result) {
 
           return this.financeCrawlingProgressRepository.createQueryBuilder('FinanceCrawlingProgress')
-          .update()
-          .set(
-            {
-              process: progressType === ProgressType.COMPLETE? 100: process,
-              progressType: progressType,
-            }
-          )
-          .where("user_id = :userId", { userId: user.id })
-          .execute()
-          .then(result => {
-            return this.getFinanceProgress(user);
-          })
-          .catch(e => {
-            throw e;
-          })
+            .update()
+            .set(
+              {
+                process: progressType === ProgressType.COMPLETE ? 100 : process,
+                progressType: progressType,
+              }
+            )
+            .where("user_id = :userId", { userId: user.id })
+            .execute()
+            .then(result => {
+              return this.getFinanceProgress(user);
+            })
+            .catch(e => {
+              throw e;
+            })
 
-          
-        
+
+
         } else {
           throw new ConflictException('Progress Data Empty..');
         }

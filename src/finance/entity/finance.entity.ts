@@ -1,31 +1,9 @@
 import { IsEnum } from 'class-validator';
 import { User } from 'src/auth/entity/user.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { FinanceType } from '../finance.service';
+import { FinanceCandidate } from './finance_candidate.entity';
 
-// case "CASH_LESS":
-// 						cashlessModelList.add(model_);
-// 						break;
-// 					case "DEPT_LESS":
-// 						deptlessModelList.add(model_);
-// 						break;
-// 					case "SHARE_LESS":
-// 						sharelessModelList.add(model_);
-// 						break;
-// 					case "PER_LESS":
-// 						perlessModelList.add(model_);
-// 						break;
-// 					case "PBR_LESS":
-// 						pbrlessModelList.add(model_);
-// 						break;
-// 					case "PSR_LESS":
-// 						psrlessModelList.add(model_);
-// 						break;
-// 					case "PROFIT_LESS":
-// 						profitlessModelList.add(model_);
-// 						break;
-// 					case "OTHER":
-// 						otherModelList.add(model_);
 export enum SutableType {
   SUTABLE = 'SUTABLE',
   CASH_LESS = 'CASH_LESS',
@@ -36,6 +14,7 @@ export enum SutableType {
   PSR_LESS = 'PSR_LESS',
   PROFIT_LESS = 'PROFIT_LESS',
   OTHER = 'OTHER',
+  UNSUTABLE = 'UNSUTABLE'
 }
 
 @Entity()

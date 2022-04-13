@@ -1,11 +1,12 @@
 import { User } from "src/auth/entity/user.entity";
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Finance } from "./finance.entity";
 
 @Entity()
-export class FinanceDelete {
+export class FinanceCandidate {
     @PrimaryGeneratedColumn()
     id: number;
+
 
     @CreateDateColumn({ comment: '생성일' })
     regDate: Date;
@@ -13,7 +14,8 @@ export class FinanceDelete {
     @UpdateDateColumn({ comment: '수정일' })
     modifyAt: Date;
 
-    @Column({ type: 'varchar', nullable: false, primary: true })
+
+    @Column({ type: 'varchar', nullable: false, primary: true, unique: true })
     compayName: string;
 
     @Column({ type: 'varchar' })
@@ -25,7 +27,6 @@ export class FinanceDelete {
     })
     financeType: string;
 
-    @ManyToOne((type) => User, (user) => user.financeDeletes, { eager: true })
+    @ManyToOne((type) => User, (user) => user.financeCandidates, { eager: true })
     user: User;
-
 }

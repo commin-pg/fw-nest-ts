@@ -11,11 +11,14 @@ import { Injectable, Logger } from '@nestjs/common';
 import { commaReplace, formatYMD } from './finance.util';
 import { User } from 'src/auth/entity/user.entity';
 import { FinanceDelete } from './entity/finance_delete.entity';
+import { FinanceCrawlingProgress, ProgressType } from './entity/finance_crawling_progress.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 
 @Injectable()
 export class FinanceFunc {
-  constructor() { }
+  constructor(@InjectRepository(FinanceCrawlingProgress) private financeCrawlingProgressRepository: Repository<FinanceCrawlingProgress>) { }
 
   async sutableCheck(model: Finance) {
     // * 1. PER 15 이하 (단, 0보다 커야함)
@@ -274,9 +277,10 @@ export class FinanceFunc {
 
   async crwaling(user: User, deletedCompanyNameList: string[]): Promise<Finance[]> {
     const financeResultList: Finance[] = [];
-
+    var cnt = 0;
     for (var i = 0; i < 2; i++) {
-      for (var idx = 1; idx < 50; idx++) {
+      for (var idx = 1; idx <= 50; idx++) {
+        cnt++;
         const BASE_URL = FINANCE_BASE_TABLE_URL + '?sosok=' + (i === 0 ? FinanceType.KOSPI : FinanceType.KOSDAQ) + '&page=' + idx;
         await axios
           .get(BASE_URL, {
@@ -347,6 +351,27 @@ export class FinanceFunc {
                 }
               });
           });
+
+
+        if (cnt % 10 === 0) {
+          Logger.log('Progress Submit {} ', cnt)
+          this.financeCrawlingProgressRepository.createQueryBuilder('FinanceCrawlingProgress')
+            .update()
+            .set(
+              {
+                // process: cnt, progressType: cnt >= 100 ? ProgressType.COMPLETE : ProgressType.PROCESSING
+                process: cnt, progressType: ProgressType.PROCESSING
+              }
+            )
+            .where("user_id = :userId", { userId: user.id })
+            .execute()
+            .then(result => {
+              console.log(result)
+            })
+            .catch(e => {
+              throw e;
+            })
+        }
       }
     }
     console.log(financeResultList);

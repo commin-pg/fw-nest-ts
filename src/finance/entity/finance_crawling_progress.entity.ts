@@ -5,7 +5,8 @@ import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, Prim
 export enum ProgressType {
     NONE = 'NONE',
     PROCESSING = 'PROCESSING',
-    COMPLETE = 'COMPLETE'
+    COMPLETE = 'COMPLETE',
+    FAIL = 'FAIL'
 }
 
 
@@ -21,7 +22,7 @@ export class FinanceCrawlingProgress {
     //     default: () => 'CURRENT_TIMESTAMP',
     // })
     // regDate: string;
-    @CreateDateColumn({comment: '생성일' })
+    @CreateDateColumn({ comment: '생성일' })
     regDate: Date;
 
     @UpdateDateColumn({ comment: '수정일' })
