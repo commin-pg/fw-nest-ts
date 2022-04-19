@@ -54,7 +54,8 @@ export class FinanceController {
   }
 
   @Post('/removeCandidate/:companyName')
-  async financeRemoveCandidate(@Req() req, @Param('candidateId') companyName: string) {
+  async financeRemoveCandidate(@Req() req, @Param('companyName') companyName: string) {
+    console.log('financeRemoveCandidate', companyName)
     return await this.financeService.financeRemoveCandidate(req.user, companyName);
   }
 

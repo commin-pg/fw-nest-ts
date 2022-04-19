@@ -15,6 +15,7 @@ import { LoginDTO } from './dto/login.dto';
 import { LoginSuccessInfo } from './dto/login.success.info';
 import { User } from './entity/user.entity';
 import * as config from 'config';
+import { PasswordChangeDTO } from './dto/password-change.dto';
 
 const jwtConfig = config.get('jwt');
 @Injectable()
@@ -56,7 +57,9 @@ export class AuthService {
       .where('user.userId = :userId', { userId })
       .getRawOne();
 
-    if(user){
+    console.log("validate :: ", user)
+
+    if (user) {
       const ss = await bcrypt.compare(pass, user.password);
       if (ss) {
         const { password, ...result } = user;
@@ -64,16 +67,17 @@ export class AuthService {
       } else {
         return null;
       }
-    }else{
+    } else {
       return null;
     }
   }
 
   async login(userData: any): Promise<LoginSuccessInfo> {
     // 유저 토큰 생성
-    const payload = { id: userData.id, userId:userData.userId ,username:userData.username};
+    const payload = { id: userData.id, userId: userData.userid, username: userData.username };
+    console.log("loginPayload", payload)
     const accessToken = await _createAccessToken(this.jwtService, payload);
-    const refPayload = { userId:userData.userId  };
+    const refPayload = { userId: userData.userid };
     const refreshToken = await _createRefreshToken(
       this.jwtService,
       refPayload,
@@ -82,7 +86,7 @@ export class AuthService {
     const result: LoginSuccessInfo = {
       accessToken: undefined,
       refreshToken: undefined,
-      userData
+      userData: payload
     };
 
     result.accessToken = accessToken;
@@ -91,10 +95,37 @@ export class AuthService {
     return result;
   }
 
+  async changePassword(user: User, passwordChange: PasswordChangeDTO) {
+    const { userId, oldPassword, newPassword } = passwordChange;
+
+    if (user.userId !== userId) {
+      throw new UnauthorizedException('Id가 다릅니다.')
+    }
+
+    const salt = await bcrypt.genSalt();
+    const newHashedPassword = await bcrypt.hash(newPassword, salt);
+
+    return this.validateUser(userId, oldPassword).then(result => {
+      console.log(result);
+      if (result) {
+        return this.userRepository.findOneBy({ id: result.id }).then(newUser => {
+
+          newUser.password = newHashedPassword
+          console.log("newUser", newUser);
+          return this.userRepository.save(newUser);
+        })
+      } else {
+        throw new UnauthorizedException('password가 다릅니다.')
+      }
+    }).catch(e => {
+      throw e;
+    })
+  }
+
   async verify(token) {
     try {
       const result = this.jwtService.verify(token, { secret: jwtConfig.secret })
-      console.log("Verify! " ,result)
+      console.log("Verify! ", result)
       return result;
     } catch (e) {
       console.log(e);

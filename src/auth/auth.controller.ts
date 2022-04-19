@@ -1,11 +1,13 @@
 import { Body, Controller, Get, Logger, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiProperty, ApiTags } from '@nestjs/swagger';
+import { IsNotEmpty } from 'class-validator';
 import { AuthService } from './auth.service';
 import { Public } from './decorator/public.decorator';
 import { AuthCredentialDTO } from './dto/auth-credential.dto';
 import { LoginDTO } from './dto/login.dto';
 import { LoginSuccessInfo } from './dto/login.success.info';
+import { PasswordChangeDTO } from './dto/password-change.dto';
 import { User } from './entity/user.entity';
 import { JwtAuthGuard } from './jwt.auth.guard';
 import { LocalAuthGuard } from './local.auth.guard';
@@ -38,11 +40,10 @@ export class AuthController {
         return this.authService.verify(token)
     }
 
+
     @ApiBearerAuth('accessToken')
-    @Public()
-    @Get('/profile')
-    getProfile(@Req() req){
-        console.log("Profile", req)
-        return req.user;
+    @Post('/password')
+    changePassword(@Req() req, @Body() passwordChange: PasswordChangeDTO) {
+        return this.authService.changePassword(req.user, passwordChange);
     }
 }
