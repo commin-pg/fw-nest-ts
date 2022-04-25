@@ -1,10 +1,10 @@
 server: 
-  port: 3001
-  
+  port: 3003
+
 db:
   type: 'postgres'
   port: 5432
-  database: 'exam_db'
+  database: 'stock_db'
   host: '127.0.0.1'
   username: 'postgres'
   password: 'postgres'
