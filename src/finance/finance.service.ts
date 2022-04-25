@@ -95,7 +95,6 @@ export class FinanceService {
   }
 
   async progressCb(processRate: number, progressType: ProgressType, user: User) {
-    console.log("asdkasndlksajdklasjdlkasasdnaslkfjdklsfjdkslfjlkdsjflkdsjaflkdjflksjd", processRate, progressType, this.getFinanceProgress)
     try {
       return await this.getFinanceProgress(user).then(result => {
         const req: UpdateProgressDTO = new UpdateProgressDTO();

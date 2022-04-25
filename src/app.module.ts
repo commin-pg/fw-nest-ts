@@ -9,6 +9,7 @@ import { BoardsModule } from './boards/boards.module';
 import { typeORMConfig } from './configs/typeorm.config';
 import { FinanceModule } from './finance/finance.module';
 import { TodosModule } from './todos/todos.module';
+import { MypageModule } from './mypage/mypage.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { TodosModule } from './todos/todos.module';
     AuthModule,
     TodosModule,
     FinanceModule,
+    MypageModule,
   ],
   controllers: [],
   providers: [

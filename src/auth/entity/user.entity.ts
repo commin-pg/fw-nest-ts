@@ -6,6 +6,8 @@ import { Finance } from "src/finance/entity/finance.entity";
 import { FinanceCandidate } from "src/finance/entity/finance_candidate.entity";
 import { FinanceCrawlingProgress } from "src/finance/entity/finance_crawling_progress.entity";
 import { FinanceDelete } from "src/finance/entity/finance_delete.entity";
+import { MyInvestment } from "src/mypage/entity/my_investment.entity";
+import { MyInvestHist } from "src/mypage/entity/my_invest_hist.entity";
 import { Todo } from "src/todos/entitiy/todo.entity";
 import { BaseEntity, Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
 
@@ -47,7 +49,14 @@ export class User extends BaseEntity {
     @OneToMany(type => FinanceCandidate, financeCandidate => financeCandidate.user, { eager: false })
     financeCandidates: FinanceCandidate[]
 
+    @OneToMany(type => MyInvestHist, investHist => investHist.user, { eager: false })
+    investHists: MyInvestHist[]
+
 
     @OneToOne(type => FinanceCrawlingProgress, financeCrawling => financeCrawling.user, { eager: false })
     financeCrawlingProgress: FinanceCrawlingProgress
+
+
+    @OneToOne(type => MyInvestment, myInvestment => myInvestment.user, { eager: false })
+    myInvestment: MyInvestment
 }
